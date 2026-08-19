@@ -188,7 +188,15 @@ Run `/orfi-ae-kit-model-routing` after orienting a session. With no arguments it
 - **High model — the session itself runs on it:** design, ADR/PRD review, planning, orchestration (both roles), reading relay/tasks/designs, verification, driving the Executor (pingpong), and branch/master sync + merge-conflict resolution.
 - **Low model — delegate to spawned agents:** execution/implementation, git operations (except sync and merge conflicts), Jira/Atlassian operations, persisting state/onboarding files, and any mechanical work.
 
-Update the config with `high <model>` / `low <model>` (or just tell the session in a prompt), or edit the file manually. Changing the session model with `/model` overrides the high model **for the current pane only** — it never writes back to the config.
+Update the config with `high <model>` / `low <model>` (or just tell the session in a prompt), or edit the file manually. For example:
+
+```
+/orfi-ae-kit-model-routing            # report the current high/low models for this runtime
+/orfi-ae-kit-model-routing high claude-opus-4-6    # set the high (thinking) model
+/orfi-ae-kit-model-routing low claude-sonnet-4-6   # set the low (execution) model
+```
+
+Changing the session model with `/model` overrides the high model **for the current pane only** — it never writes back to the config.
 
 Because the **Executor verifies its own agents' work**, the **Architect does not re-run that verification** — it reviews the Executor's verified result critically and acts as the quality gate for scope, correctness, and stability.
 
