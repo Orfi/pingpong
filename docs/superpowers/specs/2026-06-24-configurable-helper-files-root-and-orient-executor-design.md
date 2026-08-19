@@ -213,17 +213,15 @@ tree, `/orfi-run-*` names, C# stack, specific verification tool names). Those be
 mechanics:
 
 - **Architect orientation:** who you are (direct/review/decide, don't type code); two-session
-  model (Architect → Executor → its sub-agents); first actions (read state, then onboarding
+  model (Architect → Executor → its agents); first actions (read state, then onboarding
   if it exists, then any project rules/specs those files point to); relay protocol (4 commands
   + round-trip + reconcile-if-stale); how to write a task (goal/scope/constraints/done-when);
   how to review (demand real test numbers, verify claims, scope discipline, stability over
   clean diff — "re-run the project's tests yourself to reconcile", no tool names); what you
   don't do. **Plus the ADR step (Architect only):** read ADR files in full if they exist; if
   none, skip — or ask the human for their path and note it should be recorded in onboarding.
-- **Executor orientation:** same generic shape **minus the ADR step** — who you are (implement,
-  don't decide architecture/scope/merge); two-session model + fix-your-seat-from-this-file;
-  first actions; relay protocol + reconcile-if-stale; how to work (generic rigor: tests-first,
-  scope discipline, no fabricated data, report real numbers, stop-and-relay on surprises);
+- **Executor orientation:** same generic shape **minus the ADR step** — who you are (orchestrate agents, verify, report; don't decide architecture/scope/merge); two-session model + fix-your-seat-from-this-file;
+  first actions; relay protocol + reconcile-if-stale; how to work (orchestrate don't implement, verify before reporting, scope discipline, no fabricated data, report real numbers, stop-and-relay on surprises);
   what you don't do.
 
 ## Out of scope

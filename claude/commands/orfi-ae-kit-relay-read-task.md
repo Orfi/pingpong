@@ -9,4 +9,4 @@ Read the file `<kit-root>\relay\relay-to-executor.md` in full — this is the ta
 
 If the file is empty or missing, say so and stop (nothing to do yet).
 
-Otherwise: restate the task in one or two lines to confirm you understood it, then carry it out following all project rules (TDD, XML docs on touched `.cs` members, epic git policy, scope discipline). When the work is complete, write your result back with `/orfi-ae-kit-relay-to-architect` so the architect can review it.
+Otherwise: restate the task in one or two lines to confirm you understood it, then orchestrate agents to carry it out following all project rules (TDD, XML docs on touched `.cs` members, epic git policy, scope discipline). Verify the results before reporting. When the work is complete, write your result back with `/orfi-ae-kit-relay-to-architect` so the architect can review it.

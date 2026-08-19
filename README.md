@@ -14,7 +14,7 @@
 
 You run **two context-isolated AI sessions** against one piece of work:
 
-- The **Executor** session implements — it writes code, runs tests, does the hands-on work.
+- The **Executor** session orchestrates — it spawns agents to do the implementation work, verifies their output, and reports results back. It does not implement code directly unless the user explicitly authorizes it.
 - The **Architect** session directs and verifies — it decides what to build next, writes the task brief, and critically reviews what the Executor reports back. The Architect also acts as an **interactive thinking-partner / sidekick** to the human: helping draft the prompts that go to the Executor and helping decode the Executor's questions and results.
 
 The two sessions never share a context window. They communicate **only through file-based relay files** on disk. A **human sits at the decision points** — approving tasks, resolving blockers, and steering the loop.
@@ -37,7 +37,7 @@ set-helper-files-root (one-time per repo — configure the helper-files root)
   → orient (Architect / Executor each orient their own session)
     → relay-to-executor (Architect writes task)
       → relay-read-task (Executor reads task)
-        → Executor does the work
+        → Executor orchestrates the work
           → relay-to-architect (Executor writes result)
             → relay-read-result (Architect reviews critically)
               → repeat (Architect relays the next task)
@@ -68,7 +68,7 @@ In Claude Code these are **commands**; in GitHub Copilot CLI the equivalent **sk
 4. **Orient the sessions:** run `/orfi-ae-kit-orient-architect` in one terminal and `/orfi-ae-kit-orient-executor` in the other.
 5. **Run the loop:**
    - In the Architect: `/orfi-ae-kit-relay-to-executor` — describe the task; it writes the relay file.
-   - Switch to the Executor: `/orfi-ae-kit-relay-read-task` — it reads the task and does the work, then `/orfi-ae-kit-relay-to-architect` to write its report.
+   - Switch to the Executor: `/orfi-ae-kit-relay-read-task` — it reads the task, orchestrates agents to do the work, verifies the results, then `/orfi-ae-kit-relay-to-architect` to write its report.
    - Back in the Architect: `/orfi-ae-kit-relay-read-result` — it critically reviews the result and drafts the next task.
    - Repeat. You are the relay — every hop passes through your hands.
 

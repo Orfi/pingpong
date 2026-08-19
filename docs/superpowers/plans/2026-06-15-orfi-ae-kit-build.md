@@ -680,7 +680,7 @@ Write `/mnt/BA707A64707A2773/code/orfi-ae-kit/README.md`:
 
 You run **two context-isolated AI sessions** against one piece of work:
 
-- The **Executor** session implements — it writes code, runs tests, does the hands-on work.
+- The **Executor** session orchestrates — it spawns agents to do the implementation work, verifies their output, and reports results back.
 - The **Architect** session directs and verifies — it decides what to build next, writes the task brief, and critically reviews what the Executor reports back. The Architect also acts as an **interactive thinking-partner / sidekick** to the human: helping draft the prompts that go to the Executor and helping decode the Executor's questions and results.
 
 The two sessions never share a context window. They communicate **only through file-based relay files** on disk. A **human sits at the decision points** — approving tasks, resolving blockers, and steering the loop.
@@ -691,7 +691,7 @@ The two sessions never share a context window. They communicate **only through f
 orient (Architect)
   → relay-to-executor (Architect writes task)
     → relay-read-task (Executor reads task)
-      → Executor does the work
+      → Executor orchestrates the work
         → relay-to-architect (Executor writes result)
           → relay-read-result (Architect reviews critically)
             → repeat (Architect relays the next task)

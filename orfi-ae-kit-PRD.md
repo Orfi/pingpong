@@ -12,7 +12,7 @@
 
 The pattern: you run **TWO context-isolated AI sessions** against one piece of work.
 
-- The **Executor** session implements — it writes code, runs tests, does the hands-on work.
+- The **Executor** session orchestrates — it spawns agents to do the implementation work, verifies their output, and reports results back. It does not implement code directly unless the user explicitly authorizes it.
 - The **Architect** session directs and verifies — it decides what to build next, writes the task brief, and critically reviews what the Executor reports back. The Architect also acts as an **interactive thinking-partner / sidekick** to the human: helping draft the prompts that go to the Executor and helping decode the Executor's questions and results.
 
 The two sessions never share a context window. They communicate **only through file-based relay files** on disk. A **human sits at the decision points** — approving tasks, resolving blockers, and steering the loop.
@@ -235,13 +235,13 @@ Write `README.md` covering all of the following:
 
 1. **What orfi-ae-kit is** — the Architect/Executor two-session pattern delivered as slash-command skills; the optional companion to orfi-kit; the "SonOfAnton was shelved, this is skills-only, no app" note.
 2. **PREREQUISITE — orfi-kit (prominent):** state clearly at the top that **orfi-kit should be installed first**, link/point to its repo, and that the two kits are separate (not merged). The installer only *warns* if it's missing — the README is where the requirement is documented.
-3. **The Architect/Executor pattern explained** — two context-isolated sessions (Executor implements, Architect directs + verifies + acts as the human's thinking-partner), communicating only through file-based relay files, with a human at the decision points.
+3. **The Architect/Executor pattern explained** — two context-isolated sessions (Executor orchestrates agents + verifies, Architect directs + verifies + acts as the human's thinking-partner), communicating only through file-based relay files, with a human at the decision points.
 4. **The relay loop** — document the cycle:
    ```
    orient (Architect)
      → relay-to-executor (Architect writes task)
        → relay-read-task (Executor reads task)
-         → Executor does the work
+          → Executor orchestrates the work
            → relay-to-architect (Executor writes result)
              → relay-read-result (Architect reviews critically)
                → repeat (Architect relays the next task)

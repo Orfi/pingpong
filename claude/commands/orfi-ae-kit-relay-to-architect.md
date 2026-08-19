@@ -3,7 +3,7 @@ name: orfi-ae-kit-relay-to-architect
 description: Executor role — write a result/output to the architect relay file (overwrite).
 ---
 
-You are acting as the **Executor**. Report the result of the work you just did back to the **architect** Claude.
+You are acting as the **Executor**. Report the result of the work you just orchestrated back to the **architect** Claude.
 
 Resolve the **helper-files root** first: read `.orfi-kits/helper-files-root` in the current repo. If it is missing, STOP and run `/orfi-ae-kit-set-helper-files-root` — ask the user for the absolute path (never search for, infer, or guess a location; no default), then continue. There is no default path — do not fall back to any hard-coded location. Define `<kit-root>` = `<helper-files-root>\orfi-kits`.
 
