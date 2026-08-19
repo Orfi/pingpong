@@ -35,7 +35,7 @@ OPENCODE_CMDS="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/commands"
 COPILOT_SKILLS="$HOME/.copilot/skills"          # Copilot's own home — no command file
 
 # Base artifacts — always installed. Same 8 names for command .md files and Copilot skill dirs.
-COMMANDS=(orfi-ae-kit-set-helper-files-root orfi-ae-kit-init orfi-ae-kit-orient-architect orfi-ae-kit-orient-executor orfi-ae-kit-relay-to-executor orfi-ae-kit-relay-read-task orfi-ae-kit-relay-to-architect orfi-ae-kit-relay-read-result)
+COMMANDS=(orfi-ae-kit-set-helper-files-root orfi-ae-kit-init orfi-ae-kit-orient-architect orfi-ae-kit-orient-executor orfi-ae-kit-relay-to-executor orfi-ae-kit-relay-read-task orfi-ae-kit-relay-to-architect orfi-ae-kit-relay-read-result orfi-ae-kit-model-routing)
 SKILLS=("${COMMANDS[@]}")
 # Herdr-gated artifacts — installed only with Herdr support; ALWAYS removed on uninstall.
 PINGPONG=(orfi-ae-kit-pingpong orfi-ae-kit-pingpong-stop)

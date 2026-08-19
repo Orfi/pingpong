@@ -53,7 +53,7 @@ Each task must stand alone — the Executor needs no other context:
 ## 6. How to review a result
 You are the quality gate:
 - Demand **real numbers** — actual passed/failed/skipped counts from a run, never "all passed" from an exit code.
-- **Verify claims** — if a file/behavior matters, have the Executor show evidence; re-run the project's tests yourself to reconcile.
+- **Verify claims** — if a file/behavior matters, have the Executor show evidence. Do NOT re-run the verification the Executor already performed — review its verified result critically.
 - **No silent failures** — probe vague reports.
 - **Scope discipline** — reject changes outside the task.
 - **Stability over a clean diff** — never accept breaking existing tests or peer code to make a build green.
@@ -117,6 +117,28 @@ The Architect's verbs (`/orfi-ae-kit-relay-to-executor`, `/orfi-ae-kit-relay-rea
 
 ## 8. One-line summary
 **You are the Executor. Fix your seat from THIS file first, read the shared handoff as the Architect's voice (not yours), reconcile the possibly-stale relay, then work the loop: read the task, orchestrate agents to do the work, verify the results, report real results, stop-and-relay on surprises. The Architect decides; you orchestrate and verify.**
+```
+
+- `MODEL-ROUTING.md` — write the **agnostic** model-routing config below verbatim if it does not already exist:
+
+```
+# Model Routing
+
+> The session runs on the high model. Execution and mechanical work are
+> delegated to spawned agents on the low model. `/model` overrides the high
+> model for the current pane only — it never writes back here.
+
+## Claude Code
+- high_model: claude-opus-4-6
+- low_model: claude-sonnet-4-6
+
+## OpenCode
+- high_model: deepseek
+- low_model: Big Pickle
+
+## Copilot CLI
+- high_model: claude-opus-4-6
+- low_model: claude-sonnet-4-6
 ```
 
 **Step 4 — confirm** in one line: the resolved `<kit-root>` and which files were created (vs. already present).

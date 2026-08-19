@@ -55,10 +55,11 @@ set-helper-files-root (one-time per repo — configure the helper-files root)
 | `/orfi-ae-kit-relay-read-task` | Executor: read the task the Architect left. |
 | `/orfi-ae-kit-relay-to-architect` | Executor: write your result/report back. |
 | `/orfi-ae-kit-relay-read-result` | Architect: read and critically review the Executor's result. |
+| `/orfi-ae-kit-model-routing` | Both roles: read or update the model-routing config (report high/low tiers, or set them with `high <model>` / `low <model>`). |
 | `/orfi-ae-kit-pingpong` | Architect: autonomous relay loop via Herdr — relay, nudge, wait, read, repeat until DONE. *(Installed only with Herdr support.)* |
 | `/orfi-ae-kit-pingpong-stop` | Any pane: stop a running ping-pong loop at its next checkpoint. *(Installed only with Herdr support.)* |
 
-In Claude Code these are **commands**; in GitHub Copilot CLI the equivalent **skills** are their own slash commands. Full parity: every Claude command is mirrored as a Copilot skill — 8 core, plus 2 optional ping-pong commands installed only with Herdr support.
+In Claude Code these are **commands**; in GitHub Copilot CLI the equivalent **skills** are their own slash commands. Full parity: every Claude command is mirrored as a Copilot skill — 9 core, plus 2 optional ping-pong commands installed only with Herdr support.
 
 ## Getting started
 
@@ -170,12 +171,26 @@ The helper-files root is a general bucket, so the kit keeps its files in a dedic
 <root>\orfi-kits\relay\relay-to-architect.md    (result: Executor → Architect)
 <root>\orfi-kits\architect-orientation.md       (generic: who the Architect is / how it operates)
 <root>\orfi-kits\executor-orientation.md        (generic: who the Executor is / how it operates)
+<root>\orfi-kits\MODEL-ROUTING.md               (model routing config — high/low tiers per runtime)
 <root>\orfi-kits\CLAUDE-SESSION-STATE.md        (shared handoff state — Claude)
 <root>\orfi-kits\COPILOT-SESSION-STATE.md       (shared handoff state — Copilot)
 <root>\orfi-kits\ONBOARDING.md                  (project single source of truth, read if it exists)
 ```
 
 The same pointer is shared with **orfi-kit** (which reads `CLAUDE-SESSION-STATE.md` from it via its own `/orfi-kit-set-helper-files-root` command), so the Architect/Executor handoff and orfi-kit's state commands all agree on one root per repo.
+
+## Model routing
+
+The kit routes work by model tier: **high-model thinking work** and **low-model execution work**. The routing config lives in `<root>\orfi-kits\MODEL-ROUTING.md`, created by `/orfi-ae-kit-init` (with placeholders) or by `/orfi-ae-kit-model-routing` if missing. It has three sections — **Claude Code**, **OpenCode**, **Copilot CLI** — each holding a `high_model` (the thinking tier, e.g. Opus) and a `low_model` (the execution tier, e.g. Sonnet).
+
+Run `/orfi-ae-kit-model-routing` after orienting a session. With no arguments it reports this runtime's high/low models and installs the routing rules:
+
+- **High model — the session itself runs on it:** design, ADR/PRD review, planning, orchestration (both roles), reading relay/tasks/designs, verification, driving the Executor (pingpong), and branch/master sync + merge-conflict resolution.
+- **Low model — delegate to spawned agents:** execution/implementation, git operations (except sync and merge conflicts), Jira/Atlassian operations, persisting state/onboarding files, and any mechanical work.
+
+Update the config with `high <model>` / `low <model>` (or just tell the session in a prompt), or edit the file manually. Changing the session model with `/model` overrides the high model **for the current pane only** — it never writes back to the config.
+
+Because the **Executor verifies its own agents' work**, the **Architect does not re-run that verification** — it reviews the Executor's verified result critically and acts as the quality gate for scope, correctness, and stability.
 
 ## License
 

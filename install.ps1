@@ -46,7 +46,7 @@ $OpencodeCmds  = Join-Path $XdgConfig 'opencode/commands'
 $CopilotSkills = Join-Path $Home_ '.copilot/skills'         # Copilot's own home — no command file
 
 # Base artifacts — always installed.
-$Commands = @('orfi-ae-kit-set-helper-files-root','orfi-ae-kit-init','orfi-ae-kit-orient-architect','orfi-ae-kit-orient-executor','orfi-ae-kit-relay-to-executor','orfi-ae-kit-relay-read-task','orfi-ae-kit-relay-to-architect','orfi-ae-kit-relay-read-result')
+$Commands = @('orfi-ae-kit-set-helper-files-root','orfi-ae-kit-init','orfi-ae-kit-orient-architect','orfi-ae-kit-orient-executor','orfi-ae-kit-relay-to-executor','orfi-ae-kit-relay-read-task','orfi-ae-kit-relay-to-architect','orfi-ae-kit-relay-read-result','orfi-ae-kit-model-routing')
 $Skills   = $Commands
 # Herdr-gated artifacts — installed only with Herdr support; ALWAYS removed on uninstall.
 $PingPong = @('orfi-ae-kit-pingpong','orfi-ae-kit-pingpong-stop')

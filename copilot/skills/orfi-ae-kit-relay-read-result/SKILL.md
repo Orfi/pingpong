@@ -9,4 +9,4 @@ Read the file `<kit-root>\relay\relay-to-architect.md` in full — this is the r
 
 If the file is empty or missing, say so and stop (no result yet).
 
-Otherwise: review the executor's result critically. Verify claims where you can, note anything that looks wrong, incomplete, or unverified, and decide the next step. If there is a follow-up task, relay it with `/orfi-ae-kit-relay-to-executor`.
+Otherwise: review the executor's result critically. Do NOT re-run the verification the executor already performed — review its verified result, note anything that looks wrong, incomplete, or unverified, and decide the next step. If there is a follow-up task, relay it with `/orfi-ae-kit-relay-to-executor`.
