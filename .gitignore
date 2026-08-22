@@ -1,1 +1,4 @@
 .playwright-mcp/
+
+# local helper-root pointer
+.orfi-kits/
