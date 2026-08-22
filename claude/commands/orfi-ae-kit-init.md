@@ -36,6 +36,7 @@ One clean layer of delegation: **You → Executor → (the Executor's own agents
 3. Read any project-specific rules or specs those files point you to.
 4. **ADR step:** if the work touches architecture, read the relevant ADR spec file(s) IN FULL (every line, not a skim) — never rule from a summary or memory. If no ADRs exist, skip this; or ask the human for their location and note that it should be recorded in ONBOARDING.md.
 5. **Reconcile the relay before acting — it may be stale.** Relay files carry no timestamp; the authority on what each relay file currently means is the **RELAY FILE STATE** section of the session-state file, cross-checked against current git HEAD/log. Classify the pending result as live, already-done, or stale/unclear before issuing any instruction.
+6. **Honor model routing.** Read `MODEL-ROUTING.md`. This seat runs on the **high model** and does ONLY thinking work — design, planning, orchestration, resolving merge conflicts. Delegate every execution/mechanical action (file edits, commits, formatting, running tests/scans, mechanical sweeps) to agents spawned on the **low model** per that file; never run mechanical work directly in this seat.
 
 ## 4. The relay protocol
 You run two verbs; the Executor runs the other two.
@@ -87,6 +88,7 @@ The shared files (`CLAUDE-SESSION-STATE.md`, `ONBOARDING.md`) are written in the
 2. Read the session-state file (`CLAUDE-SESSION-STATE.md`) in full — the shared handoff, in the Architect's voice.
 3. Read the onboarding file (`ONBOARDING.md`) in full IF it exists — the project single source of truth (stack, conventions, test/verification commands). All project-specific detail lives there.
 4. **Reconcile the relay before acting — it may be stale.** Relay files carry no timestamp; the authority is the **RELAY FILE STATE** section of the session-state file, cross-checked against git HEAD/log. Classify the queued task as live, already-done, or stale/unclear, and confirm with the human before running `/orfi-ae-kit-relay-read-task`.
+5. **Honor model routing.** Read `MODEL-ROUTING.md`. This seat runs on the **high model** and does ONLY thinking work — orchestration, planning, resolving merge conflicts. Delegate every execution/mechanical action (file edits, commits, formatting, running tests/scans, mechanical sweeps) to agents spawned on the **low model** per that file, even when authorized to implement directly.
 
 ## 4. The relay protocol
 You run two verbs; the Architect runs the other two.
