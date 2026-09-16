@@ -28,6 +28,10 @@ Resolve the **helper-files root** first: read `.orfi-kits/helper-files-root` in 
 ## Copilot CLI
 - high_model: claude-opus-4-6
 - low_model: claude-sonnet-4-6
+
+## Codex CLI
+- high_model: gpt-5.1-codex
+- low_model: gpt-5.1-codex-mini
 ```
 
 ### Report mode (no arguments)

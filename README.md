@@ -59,7 +59,7 @@ set-helper-files-root (one-time per repo — configure the helper-files root)
 | `/orfi-ae-kit-pingpong` | Architect: autonomous relay loop via Herdr — relay, nudge, wait, read, repeat until DONE. *(Installed only with Herdr support.)* |
 | `/orfi-ae-kit-pingpong-stop` | Any pane: stop a running ping-pong loop at its next checkpoint. *(Installed only with Herdr support.)* |
 
-In Claude Code these are **commands**; in GitHub Copilot CLI the equivalent **skills** are their own slash commands. Full parity: every Claude command is mirrored as a Copilot skill — 9 core, plus 2 optional ping-pong commands installed only with Herdr support.
+In Claude Code these are **commands**; in GitHub Copilot CLI and OpenAI Codex CLI the equivalent **skills** serve the same role (in Copilot a skill is its own slash command; in Codex a skill is selected via `/skills` or mentioned with `$`). Full parity: every Claude command is mirrored as a Copilot skill and a Codex skill — 9 core, plus 2 optional ping-pong commands installed only with Herdr support.
 
 ## Getting started
 
@@ -107,10 +107,11 @@ Install for which runtime(s)?
   1) Claude Code
   2) OpenCode
   3) GitHub Copilot CLI
-Select one or more (e.g. '1', '3', or '1 2 3' / '1,2' for several).
+  4) OpenAI Codex CLI
+Select one or more (e.g. '1', '3', or '1 2 3 4' / '1,2' for several).
 ```
 
-Selections may be **space- or comma-separated** (`1`, `1 2`, `1,3`, `1 2 3`).
+Selections may be **space- or comma-separated** (`1`, `1 2`, `1,3`, `1 2 3 4`).
 
 The installer then asks whether you want **Herdr support** (autonomous
 architect↔executor ping-pong). Answering yes installs/updates
@@ -135,8 +136,9 @@ but never touches Herdr itself.
 | Claude Code | `claude/commands/*.md` | `~/.claude/commands/` |
 | OpenCode | `claude/commands/*.md` | `~/.config/opencode/commands/` (honours `$XDG_CONFIG_HOME`) |
 | GitHub Copilot CLI | `copilot/skills/<dir>/` | `~/.copilot/skills/` |
+| OpenAI Codex CLI | `codex/skills/<dir>/` | `$CODEX_HOME/skills/` (default `~/.codex/skills/`) |
 
-Claude and OpenCode share the same **command** source; each gets its own copy in its own commands dir. Copilot's **skills** come from a different source dir and install to their own home.
+Claude and OpenCode share the same **command** source; each gets its own copy in its own commands dir. Copilot's **skills** come from a different source dir and install to their own home; Codex likewise has its **own** adapted skill copy (`codex/skills/`) installing to its own home (`$CODEX_HOME/skills/`, default `~/.codex/skills/`) — skill selected via `/skills` or mentioned with `$`, no command file.
 
 ## Uninstall
 
@@ -148,7 +150,7 @@ Claude and OpenCode share the same **command** source; each gets its own copy in
 ./install.ps1 -Uninstall
 ```
 
-Removes the commands from the Claude/OpenCode commands dirs and the skill dirs from `~/.copilot/skills`, for whichever runtimes you select — including the two ping-pong commands if present (Herdr itself is never touched).
+Removes the commands from the Claude/OpenCode commands dirs and the skill dirs from `~/.copilot/skills` and `$CODEX_HOME/skills` (default `~/.codex/skills/`), for whichever runtimes you select — including the two ping-pong commands if present (Herdr itself is never touched).
 
 ## The helper-files root (per-repo, configurable)
 
@@ -174,6 +176,7 @@ The helper-files root is a general bucket, so the kit keeps its files in a dedic
 <root>\orfi-kits\MODEL-ROUTING.md               (model routing config — high/low tiers per runtime)
 <root>\orfi-kits\CLAUDE-SESSION-STATE.md        (shared handoff state — Claude)
 <root>\orfi-kits\COPILOT-SESSION-STATE.md       (shared handoff state — Copilot)
+<root>\orfi-kits\CODEX-SESSION-STATE.md         (shared handoff state — Codex)
 <root>\orfi-kits\ONBOARDING.md                  (project single source of truth, read if it exists)
 ```
 
@@ -181,7 +184,7 @@ The same pointer is shared with **orfi-kit** (which reads `CLAUDE-SESSION-STATE.
 
 ## Model routing
 
-The kit routes work by model tier: **high-model thinking work** and **low-model execution work**. The routing config lives in `<root>\orfi-kits\MODEL-ROUTING.md`, created by `/orfi-ae-kit-init` (with placeholders) or by `/orfi-ae-kit-model-routing` if missing. It has three sections — **Claude Code**, **OpenCode**, **Copilot CLI** — each holding a `high_model` (the thinking tier, e.g. Opus) and a `low_model` (the execution tier, e.g. Sonnet).
+The kit routes work by model tier: **high-model thinking work** and **low-model execution work**. The routing config lives in `<root>\orfi-kits\MODEL-ROUTING.md`, created by `/orfi-ae-kit-init` (with placeholders) or by `/orfi-ae-kit-model-routing` if missing. It has four sections — **Claude Code**, **OpenCode**, **Copilot CLI**, **Codex CLI** — each holding a `high_model` (the thinking tier, e.g. Opus) and a `low_model` (the execution tier, e.g. Sonnet).
 
 Run `/orfi-ae-kit-model-routing` after orienting a session. With no arguments it reports this runtime's high/low models and installs the routing rules:
 

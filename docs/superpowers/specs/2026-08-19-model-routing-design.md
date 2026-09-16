@@ -9,7 +9,7 @@ The kit defines two roles (Architect, Executor) but no model policy. A session
 runs one model; spawned agents inherit whatever that session supports. As the
 Executor becomes an orchestrator that spawns agents, there is no mechanism to
 route *thinking* work to a high model (Opus) and *execution/mechanical* work to
-a cheap model (Sonnet) — for any runtime (Claude Code, OpenCode, Copilot CLI).
+a cheap model (Sonnet) — for any runtime (Claude Code, OpenCode, Copilot CLI, Codex CLI).
 
 ## Goal
 
@@ -32,7 +32,7 @@ relays, orientation, state, and onboarding files. It is global to that root
 (shared across repos), not per-repo.
 
 Created by `/orfi-ae-kit-init` (create-if-absent, never overwrite) and by
-`/orfi-ae-kit-model-routing` if missing. Three sections, one per runtime:
+`/orfi-ae-kit-model-routing` if missing. Four sections, one per runtime:
 
 ```markdown
 # Model Routing
@@ -52,6 +52,10 @@ Created by `/orfi-ae-kit-init` (create-if-absent, never overwrite) and by
 ## Copilot CLI
 - high_model: claude-opus-4-6
 - low_model: claude-sonnet-4-6
+
+## Codex CLI
+- high_model: gpt-5.1-codex
+- low_model: gpt-5.1-codex-mini
 ```
 
 Placeholders are the current top tier (Opus) / mid tier (Sonnet) for Claude
@@ -64,6 +68,8 @@ These are initial placeholders only — the whole point is they are editable.
   (both runtimes share the command source, per the kit's existing layout).
 - Copilot CLI: `copilot/skills/orfi-ae-kit-model-routing/SKILL.md` (adapted
   copy, per existing parity).
+- Codex CLI: `codex/skills/orfi-ae-kit-model-routing/SKILL.md` (adapted copy,
+  per existing parity).
 
 Three modes:
 

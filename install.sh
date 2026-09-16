@@ -5,7 +5,7 @@
 # orfi-ae-kit is skills/commands-only (no scripts at runtime). This script is
 # install-time plumbing only: it copies (or symlinks) the Architect/Executor
 # relay artifacts into the right directories for Claude Code, OpenCode, and/or
-# GitHub Copilot CLI.
+# GitHub Copilot CLI, and/or OpenAI Codex CLI.
 #
 # Usage:
 #   ./install.sh                 interactive: asks which runtime(s) to install for
@@ -20,7 +20,10 @@
 #   * OpenCode    -> ~/.config/opencode/commands/  (honours $XDG_CONFIG_HOME)
 # Copilot is independent: its artifacts are SKILLS from a DIFFERENT source dir
 # (copilot/skills), installed to its OWN home (~/.copilot/skills) — no command
-# file (in Copilot a skill IS its slash command).
+# file (in Copilot a skill IS its slash command). Codex does the same: its own
+# source (codex/skills, adapted executor text) into $CODEX_HOME/skills
+# (default ~/.codex/skills) — independent, no command file (in Codex a skill is
+# selected via /skills or mentioned with $).
 
 set -euo pipefail
 
@@ -29,10 +32,12 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMANDS_SRC="$REPO_DIR/claude/commands"        # Claude + OpenCode share this command source
 COPILOT_SKILLS_SRC="$REPO_DIR/copilot/skills"   # Copilot has its own skill source
+CODEX_SKILLS_SRC="$REPO_DIR/codex/skills"        # Codex has its own adapted copy
 
 CLAUDE_CMDS="$HOME/.claude/commands"
 OPENCODE_CMDS="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/commands"
 COPILOT_SKILLS="$HOME/.copilot/skills"          # Copilot's own home — no command file
+CODEX_SKILLS="${CODEX_HOME:-$HOME/.codex}/skills"   # Codex's own home — no command file
 
 # Base artifacts — always installed. Same 8 names for command .md files and Copilot skill dirs.
 COMMANDS=(orfi-ae-kit-set-helper-files-root orfi-ae-kit-init orfi-ae-kit-orient-architect orfi-ae-kit-orient-executor orfi-ae-kit-relay-to-executor orfi-ae-kit-relay-read-task orfi-ae-kit-relay-to-architect orfi-ae-kit-relay-read-result orfi-ae-kit-model-routing)
@@ -86,9 +91,9 @@ remove_commands_from() {
 }
 
 install_skills_to() {
-  local target_dir="$1"
+  local target_dir="$1" src_dir="${2:-$COPILOT_SKILLS_SRC}"
   for s in "${SKILLS[@]}"; do
-    place "$COPILOT_SKILLS_SRC/$s" "$target_dir/$s"
+    place "$src_dir/$s" "$target_dir/$s"
   done
 }
 
@@ -128,27 +133,30 @@ done
 WANT_CC=0
 WANT_OC=0
 WANT_CP=0
+WANT_CX=0
 
 say "orfi-ae-kit installer"
 say "Install for which runtime(s)?"
 say "  1) Claude Code"
 say "  2) OpenCode"
 say "  3) GitHub Copilot CLI"
-say "Select one or more (e.g. '1', '3', or '1 2 3' / '1,2' for several)."
+say "  4) OpenAI Codex CLI"
+say "Select one or more (e.g. '1', '3', or '1 2 3 4' / '1,2' for several)."
 printf 'Choice: '
 read -r choice
 
-# Accept space- or comma-separated selections (1, 2, 3, "1 2", "1,3", ...).
+# Accept space- or comma-separated selections (1, 2, 3, 4, "1 2", "1,3", ...).
 for n in ${choice//,/ }; do
   case "$n" in
     1) WANT_CC=1 ;;
     2) WANT_OC=1 ;;
     3) WANT_CP=1 ;;
-    *) err "invalid choice: '$n' (pick 1, 2 and/or 3)" ;;
+    4) WANT_CX=1 ;;
+    *) err "invalid choice: '$n' (pick 1, 2, 3 and/or 4)" ;;
   esac
 done
 
-[ "$WANT_CC" -eq 1 ] || [ "$WANT_OC" -eq 1 ] || [ "$WANT_CP" -eq 1 ] || err "no runtime selected"
+[ "$WANT_CC" -eq 1 ] || [ "$WANT_OC" -eq 1 ] || [ "$WANT_CP" -eq 1 ] || [ "$WANT_CX" -eq 1 ] || err "no runtime selected"
 
 # --- herdr support (install mode only) ----------------------------------------
 
@@ -194,6 +202,7 @@ if [ "$MODE" = "uninstall" ]; then
   [ "$WANT_CC" -eq 1 ] && remove_commands_from "$CLAUDE_CMDS"
   [ "$WANT_OC" -eq 1 ] && remove_commands_from "$OPENCODE_CMDS"
   [ "$WANT_CP" -eq 1 ] && remove_skills_from "$COPILOT_SKILLS"
+  [ "$WANT_CX" -eq 1 ] && remove_skills_from "$CODEX_SKILLS"
   say "Done."
   exit 0
 fi
@@ -229,5 +238,10 @@ if [ "$WANT_CP" -eq 1 ]; then
   install_skills_to "$COPILOT_SKILLS"
 fi
 
+if [ "$WANT_CX" -eq 1 ]; then
+  say "OpenAI Codex CLI — skills go to \$CODEX_HOME/skills (default ~/.codex/skills; the skill is selected via /skills or mentioned with \$)."
+  install_skills_to "$CODEX_SKILLS" "$CODEX_SKILLS_SRC"
+fi
+
 say ""
-say "Done. Orient your Architect session with /orfi-ae-kit-orient-architect"
+say "Done. Orient your Architect session with /orfi-ae-kit-orient-architect in Claude Code / OpenCode / Copilot CLI, or select the orfi-ae-kit-orient-architect skill in Codex CLI."

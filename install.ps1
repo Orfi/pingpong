@@ -5,8 +5,8 @@
 #
 # orfi-ae-kit is skills/commands-only (no scripts at runtime). This script is
 # install-time plumbing only: it copies (or symlinks) the Architect/Executor
-# relay artifacts into the right directories for Claude Code, OpenCode, and/or
-# GitHub Copilot CLI.
+# relay artifacts into the right directories for Claude Code, OpenCode, GitHub
+# Copilot CLI, and/or OpenAI Codex CLI.
 #
 # Usage:
 #   ./install.ps1                 interactive: asks which runtime(s) to install for
@@ -21,7 +21,10 @@
 #   * OpenCode    -> ~/.config/opencode/commands/  (honours $XDG_CONFIG_HOME)
 # Copilot is independent: its artifacts are SKILLS from a DIFFERENT source dir
 # (copilot/skills), installed to its OWN home (~/.copilot/skills) — no command
-# file (in Copilot a skill IS its slash command).
+# file (in Copilot a skill IS its slash command). Codex does the same: its own
+# source (codex/skills, adapted executor text) into $env:CODEX_HOME/skills
+# (default ~/.codex/skills) — independent, no command file (in Codex a skill is
+# selected via /skills or mentioned with $).
 
 [CmdletBinding()]
 param(
@@ -37,6 +40,7 @@ $ErrorActionPreference = 'Stop'
 $RepoDir          = Split-Path -Parent $MyInvocation.MyCommand.Path
 $CommandsSrc      = Join-Path $RepoDir 'claude/commands'    # Claude + OpenCode share this command source
 $CopilotSkillsSrc = Join-Path $RepoDir 'copilot/skills'     # Copilot has its own skill source
+$CodexSkillsSrc   = Join-Path $RepoDir 'codex/skills'       # Codex has its own adapted copy
 
 $Home_     = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
 $XdgConfig = if ($env:XDG_CONFIG_HOME) { $env:XDG_CONFIG_HOME } else { Join-Path $Home_ '.config' }
@@ -44,6 +48,8 @@ $XdgConfig = if ($env:XDG_CONFIG_HOME) { $env:XDG_CONFIG_HOME } else { Join-Path
 $ClaudeCmds    = Join-Path $Home_ '.claude/commands'
 $OpencodeCmds  = Join-Path $XdgConfig 'opencode/commands'
 $CopilotSkills = Join-Path $Home_ '.copilot/skills'         # Copilot's own home — no command file
+$CodexHome     = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $Home_ '.codex' }
+$CodexSkills   = Join-Path $CodexHome 'skills'              # Codex's own home — no command file
 
 # Base artifacts — always installed.
 $Commands = @('orfi-ae-kit-set-helper-files-root','orfi-ae-kit-init','orfi-ae-kit-orient-architect','orfi-ae-kit-orient-executor','orfi-ae-kit-relay-to-executor','orfi-ae-kit-relay-read-task','orfi-ae-kit-relay-to-architect','orfi-ae-kit-relay-read-result','orfi-ae-kit-model-routing')
@@ -88,8 +94,8 @@ function Remove-CommandsFrom($targetDir) {
     }
 }
 
-function Install-SkillsTo($targetDir) {
-    foreach ($s in $Skills) { Place (Join-Path $CopilotSkillsSrc $s) (Join-Path $targetDir $s) }
+function Install-SkillsTo($targetDir, $srcDir = $CopilotSkillsSrc) {
+    foreach ($s in $Skills) { Place (Join-Path $srcDir $s) (Join-Path $targetDir $s) }
 }
 
 function Remove-SkillsFrom($targetDir) {
@@ -114,27 +120,29 @@ if (-not (Test-Path $CommandsSrc)) { Die "commands not found at $CommandsSrc - r
 
 # --- runtime selection -------------------------------------------------------
 
-$WantCC = $false; $WantOC = $false; $WantCP = $false
+$WantCC = $false; $WantOC = $false; $WantCP = $false; $WantCX = $false
 
 Say 'orfi-ae-kit installer'
 Say 'Install for which runtime(s)?'
 Say '  1) Claude Code'
 Say '  2) OpenCode'
 Say '  3) GitHub Copilot CLI'
-Say "Select one or more (e.g. '1', '3', or '1 2 3' / '1,2' for several)."
+Say '  4) OpenAI Codex CLI'
+Say "Select one or more (e.g. '1', '3', or '1 2 3 4' / '1,2' for several)."
 $choice = Read-Host 'Choice'
 
-# Accept space- or comma-separated selections (1, 2, 3, "1 2", "1,3", ...).
+# Accept space- or comma-separated selections (1, 2, 3, 4, "1 2", "1,3", ...).
 foreach ($n in ($choice -split '[,\s]+' | Where-Object { $_ -ne '' })) {
     switch ($n) {
         '1' { $WantCC = $true }
         '2' { $WantOC = $true }
         '3' { $WantCP = $true }
-        default { Die "invalid choice: '$n' (pick 1, 2 and/or 3)" }
+        '4' { $WantCX = $true }
+        default { Die "invalid choice: '$n' (pick 1, 2, 3 and/or 4)" }
     }
 }
 
-if (-not ($WantCC -or $WantOC -or $WantCP)) { Die 'no runtime selected' }
+if (-not ($WantCC -or $WantOC -or $WantCP -or $WantCX)) { Die 'no runtime selected' }
 
 # --- herdr support (install mode only) ----------------------------------------
 
@@ -176,6 +184,7 @@ if ($Uninstall) {
     if ($WantCC) { Remove-CommandsFrom $ClaudeCmds }
     if ($WantOC) { Remove-CommandsFrom $OpencodeCmds }
     if ($WantCP) { Remove-SkillsFrom $CopilotSkills }
+    if ($WantCX) { Remove-SkillsFrom $CodexSkills }
     Say 'Done.'
     exit 0
 }
@@ -211,5 +220,10 @@ if ($WantCP) {
     Install-SkillsTo $CopilotSkills
 }
 
+if ($WantCX) {
+    Say 'OpenAI Codex CLI - skills go to $env:CODEX_HOME/skills (default ~/.codex/skills; the skill is selected via /skills or mentioned with $).'
+    Install-SkillsTo $CodexSkills $CodexSkillsSrc
+}
+
 Say ''
-Say 'Done. Orient your Architect session with /orfi-ae-kit-orient-architect'
+Say 'Done. Orient your Architect session with /orfi-ae-kit-orient-architect in Claude Code / OpenCode / Copilot CLI, or select the orfi-ae-kit-orient-architect skill in Codex CLI.'

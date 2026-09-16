@@ -139,6 +139,10 @@ The Architect's verbs (`/orfi-ae-kit-relay-to-executor`, `/orfi-ae-kit-relay-rea
 ## Copilot CLI
 - high_model: claude-opus-4-6
 - low_model: claude-sonnet-4-6
+
+## Codex CLI
+- high_model: gpt-5.1-codex
+- low_model: gpt-5.1-codex-mini
 ```
 
 **Step 4 — confirm** in one line: the resolved `<kit-root>` and which files were created (vs. already present).
