@@ -1,6 +1,6 @@
 ---
 name: orfi-ae-kit-pingpong
-description: Architect role — run the autonomous architect↔executor ping-pong loop over the relay files via Herdr until DONE, blocked, timeout, or stopped.
+description: Architect role — run the autonomous architect↔executor ping-pong loop over the relay files via Herdr until DONE, blocked, or stopped. Wait timeouts trigger status checks, not cancellation.
 ---
 
 You are acting as the **Architect** and you are about to drive the autonomous **ping-pong loop**: relay a task to the executor, nudge it through Herdr, wait, read its result, and iterate — without the user between hops. The user invoked this deliberately; never start this loop on your own initiative.
@@ -25,9 +25,9 @@ Each round:
 
 1. **STOP check.** If `<kit-root>/relay/STOP` exists: delete it, report "ping-pong stopped by user at round N" plus what was in flight, and STOP.
 2. **Relay.** Write the task with the exact procedure of `/orfi-ae-kit-relay-to-executor` (overwrite `<kit-root>/relay/relay-to-executor.md`, update the session-state RELAY FILE STATE note).
-3. **Pre-flight.** `herdr pane get <executor-pane>` — the executor must be `idle` or `done`. If `working`/`blocked`, wait with `herdr wait agent-status <executor-pane> --status idle --timeout 120000`; on timeout, read the pane, report, and STOP.
+3. **Pre-flight.** `herdr agent get <executor-pane>` — the executor must be `idle` or `done` before receiving a nudge. If `working`, wait with `herdr agent wait <executor-pane> --until idle --until done --timeout 120000`. A timeout is only a status-check interval: check the same pane and continue waiting while it is working; never interrupt or send another prompt because time elapsed. If it is `blocked`, inspect the blocked UI and STOP for the user. If the pane disappears, loses its agent, or has an unknown state that cannot be reconciled from a pane read, report that concrete problem and STOP.
 4. **Nudge.** Record the pane's current `revision`, then `herdr pane run <executor-pane> "/orfi-ae-kit-relay-read-task"`.
-5. **Wait.** `herdr wait agent-status <executor-pane> --status done --timeout 600000`; if that times out, check `herdr pane get <executor-pane>` — treat `idle` **with a changed `revision`** as completed (fast replies race past `working`; the revision change is your evidence the executor actually acted). If still unchanged or `blocked`, read the pane with `herdr pane read <executor-pane> --source recent-unwrapped --lines 60`, report, and STOP. Do NOT chain a `working` wait before the `idle`/`done` wait.
+5. **Wait.** Run `herdr agent wait <executor-pane> --until idle --until done --timeout 600000`. This is a status-check interval, not a task deadline; the executor may legitimately take longer. On timeout, check the STOP sentinel and `herdr agent get <executor-pane>`. If still `working`, repeat the wait without nudging, interrupting, restarting, or resending its task. Remain idle while it works: do not perform parallel investigation, edits, or verification unless the user explicitly requests separate work. If `idle` or `done`, confirm it acted on this dispatch through the observed working→settled transition, changed revision or lifecycle sequence, or a fresh matching result relay; do not mistake an old idle state or stale relay for completion. If `blocked`, inspect the blocked UI, report, and STOP. If the pane disappears, loses its agent, or remains unknown after reading its state, report that concrete problem and STOP. Elapsed time or an unchanged revision alone never proves the executor is stuck. Do NOT chain a `working` wait before the `idle`/`done` wait.
 6. **Read the result.** Follow `/orfi-ae-kit-relay-read-result` in this pane: read `<kit-root>/relay/relay-to-architect.md` in full and review it critically.
 7. **Log.** Append one line to the RELAY FILE STATE section of your own session-state file — `CLAUDE-SESSION-STATE.md` if you are Claude Code, `COPILOT-SESSION-STATE.md` if you are Copilot CLI, `CODEX-SESSION-STATE.md` if you are Codex CLI: round number, direction, one-sentence summary.
 8. **Decide.** Stop if the result contains `## Status: DONE`, or if you judge no follow-up is needed — report the outcome to the user. Otherwise formulate the follow-up task and go to 1.
@@ -35,7 +35,7 @@ Each round:
 ## Hard rules
 
 - There is no round cap; the loop is done-marker driven with the stops above.
-- STOP conditions, whichever comes first: done-marker; either agent `blocked`; a wait timeout; the STOP sentinel; the user interrupting you.
-- Never retry silently. Anything unexpected → halt and report.
+- STOP conditions, whichever comes first: done-marker; either agent blocked on a UI requiring user input; an unavailable or unreconcilable agent/pane; the STOP sentinel; the user explicitly cancelling or pausing the loop. A wait timeout is not a STOP condition and there is no task-duration limit.
+- Continuing a wait after its status-check interval expires is normal listening, not retrying executor work. Never retry failed task actions silently; review a returned relay question and give a bounded follow-up when it is within the user's authorization. Stop only when the actual blocker requires user input or one of the STOP conditions applies.
 - Herdr never carries task or result content — only the nudge command and status. The relay files are the sole data channel.
 - You still never implement the executor's task yourself.
