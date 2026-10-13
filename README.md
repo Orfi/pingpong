@@ -1,14 +1,14 @@
-![orfi-ae-kit](assets/header.png)
+![pingpong](assets/header.png)
 
-# orfi-ae-kit
+# pingpong
 
 **Two sessions, one loop — you hold the pen.**
 
-**orfi-ae-kit** packages the **Architect/Executor** two-session AI development pattern as a set of slash-command skills. It is the **optional companion** to the generic [orfi-kit](#prerequisite--orfi-kit). The pattern was originally explored as a standalone desktop app codenamed *SonOfAnton* — that app was **shelved**. orfi-ae-kit is **skills-only: there is no app**, no daemon, no background process. Everything is commands you invoke inside your AI CLI.
+**pingpong** packages the **Architect/Executor** two-session AI development pattern as a set of slash-command skills. It is the **optional companion** to the generic [orfi-kit](#prerequisite--orfi-kit). The pattern was originally explored as a standalone desktop app codenamed *SonOfAnton* — that app was **shelved**. pingpong is **skills-only: there is no app**, no daemon, no background process. Everything is commands you invoke inside your AI CLI.
 
 ## Prerequisite — orfi-kit
 
-**Install [orfi-kit](https://github.com/) first.** orfi-ae-kit is a separate add-on, **not merged** with orfi-kit. The dependency is soft — the AE commands are nearly standalone — but the Architect/Executor workflow leans on orfi-kit's generic git / test / guardrail skills to get work done. The installer only **warns** if orfi-kit is missing (it never blocks); this README is where the requirement is documented.
+**Install [orfi-kit](https://github.com/) first.** pingpong is a separate add-on, **not merged** with orfi-kit. The dependency is soft — the AE commands are nearly standalone — but the Architect/Executor workflow leans on orfi-kit's generic git / test / guardrail skills to get work done. The installer only **warns** if orfi-kit is missing (it never blocks); this README is where the requirement is documented.
 
 ## The Architect/Executor pattern
 
@@ -47,17 +47,17 @@ set-helper-files-root (one-time per repo — configure the helper-files root)
 
 | Command | Role |
 | --- | --- |
-| `/orfi-ae-kit-set-helper-files-root` | Setup: configure (create or change) the per-repo helper-files root. |
-| `/orfi-ae-kit-init` | Setup: bootstrap the kit files (orientation + onboarding + session-state placeholders) under the root — create-if-absent, never overwrites. |
-| `/orfi-ae-kit-orient-architect` | Orient this session as the Architect (reads orientation + session-state + onboarding). |
-| `/orfi-ae-kit-orient-executor` | Orient this session as the Executor (reads executor-orientation + session-state + onboarding). |
-| `/orfi-ae-kit-relay-to-executor` | Architect: write the next task to the executor relay file. |
-| `/orfi-ae-kit-relay-read-task` | Executor: read the task the Architect left. |
-| `/orfi-ae-kit-relay-to-architect` | Executor: write your result/report back. |
-| `/orfi-ae-kit-relay-read-result` | Architect: read and critically review the Executor's result. |
-| `/orfi-ae-kit-model-routing` | Both roles: read or update the model-routing config (report high/low tiers, or set them with `high <model>` / `low <model>`). |
-| `/orfi-ae-kit-pingpong` | Architect: autonomous relay loop via Herdr — relay, nudge, wait, read, repeat until DONE. *(Installed only with Herdr support.)* |
-| `/orfi-ae-kit-pingpong-stop` | Any pane: stop a running ping-pong loop at its next checkpoint. *(Installed only with Herdr support.)* |
+| `/pingpong-set-helper-files-root` | Setup: configure (create or change) the per-repo helper-files root. |
+| `/pingpong-init` | Setup: bootstrap the kit files (orientation + onboarding + session-state placeholders) under the root — create-if-absent, never overwrites. |
+| `/pingpong-orient-architect` | Orient this session as the Architect (reads orientation + session-state + onboarding). |
+| `/pingpong-orient-executor` | Orient this session as the Executor (reads executor-orientation + session-state + onboarding). |
+| `/pingpong-relay-to-executor` | Architect: write the next task to the executor relay file. |
+| `/pingpong-relay-read-task` | Executor: read the task the Architect left. |
+| `/pingpong-relay-to-architect` | Executor: write your result/report back. |
+| `/pingpong-relay-read-result` | Architect: read and critically review the Executor's result. |
+| `/pingpong-model-routing` | Both roles: read or update the model-routing config (report high/low tiers, or set them with `high <model>` / `low <model>`). |
+| `/pingpong-auto` | Architect: autonomous relay loop via Herdr — relay, nudge, wait, read, repeat until DONE. *(Installed only with Herdr support.)* |
+| `/pingpong-auto-stop` | Any pane: stop a running ping-pong loop at its next checkpoint. *(Installed only with Herdr support.)* |
 
 In Claude Code these are **commands**; in GitHub Copilot CLI and OpenAI Codex CLI the equivalent **skills** serve the same role (in Copilot a skill is its own slash command; in Codex a skill is selected via `/skills` or mentioned with `$`). Full parity: every Claude command is mirrored as a Copilot skill and a Codex skill — 9 core, plus 2 optional ping-pong commands installed only with Herdr support.
 
@@ -65,24 +65,24 @@ In Claude Code these are **commands**; in GitHub Copilot CLI and OpenAI Codex CL
 
 1. **Install** the kit for your runtime(s) — see [Install](#install) below.
 2. **Open two terminals**, each running its own AI CLI session in the same repo — one will be the Architect, one the Executor. (Different models/CLIs are fine; that's a feature.)
-3. **One-time per repo:** in either session, run `/orfi-ae-kit-set-helper-files-root` (point it at your helper-files directory), then `/orfi-ae-kit-init` to bootstrap the orientation, onboarding, and session-state files.
-4. **Orient the sessions:** run `/orfi-ae-kit-orient-architect` in one terminal and `/orfi-ae-kit-orient-executor` in the other.
+3. **One-time per repo:** in either session, run `/pingpong-set-helper-files-root` (point it at your helper-files directory), then `/pingpong-init` to bootstrap the orientation, onboarding, and session-state files.
+4. **Orient the sessions:** run `/pingpong-orient-architect` in one terminal and `/pingpong-orient-executor` in the other.
 5. **Run the loop:**
-   - In the Architect: `/orfi-ae-kit-relay-to-executor` — describe the task; it writes the relay file.
-   - Switch to the Executor: `/orfi-ae-kit-relay-read-task` — it reads the task, orchestrates agents to do the work, verifies the results, then `/orfi-ae-kit-relay-to-architect` to write its report.
-   - Back in the Architect: `/orfi-ae-kit-relay-read-result` — it critically reviews the result and drafts the next task.
+   - In the Architect: `/pingpong-relay-to-executor` — describe the task; it writes the relay file.
+   - Switch to the Executor: `/pingpong-relay-read-task` — it reads the task, orchestrates agents to do the work, verifies the results, then `/pingpong-relay-to-architect` to write its report.
+   - Back in the Architect: `/pingpong-relay-read-result` — it critically reviews the result and drafts the next task.
    - Repeat. You are the relay — every hop passes through your hands.
 
 ### Optional: Herdr and ping-pong mode
 
-![orfi-ae-kit running in Herdr — Executor and Architect sessions side by side](assets/ae-in-herdr.png)
+![pingpong running in Herdr — Executor and Architect sessions side by side](assets/ae-in-herdr.png)
 *The kit at work inside Herdr: Executor (left) and Architect (right) oriented in side-by-side panes.*
 
 If you opted into **Herdr support** at install time and both sessions run inside [Herdr](https://herdr.dev) panes labeled `architect` and `executor`, two extras become available. (You don't have to label the panes yourself — the orient commands self-label: each session detects it's inside Herdr and renames its own pane to its role.) (Herdr is an agent terminal multiplexer — see the [herdr repo](https://github.com/ogulcancelik/herdr) and its [agent skill](https://herdr.dev/docs/agent-skill/), which the installer sets up via `npx skills add ogulcancelik/herdr --skill herdr -g`.)
 
 - **Nudging (no new command needed):** instead of switching terminals yourself, tell the Architect in plain language — *"relay this and nudge the executor"* — and it delivers the read command into the Executor's pane via Herdr. Still one hop; control returns to you.
-- **`/orfi-ae-kit-pingpong`:** run in the Architect's pane to let the two sessions iterate autonomously — relay → nudge → wait → review → repeat — until the Executor reports `## Status: DONE`, an agent needs user input, a pane becomes unavailable, or you stop it. Wait timeouts are status-check intervals, not task deadlines: the Architect keeps waiting idly while the Executor is working. The relay files remain the only data channel, so every hop stays on disk and auditable.
-- **`/orfi-ae-kit-pingpong-stop`:** run from **any** pane to halt the loop at its next checkpoint (it drops a STOP sentinel the Architect checks before every hop). For an immediate abort, press Esc/Ctrl+C in the Architect's pane.
+- **`/pingpong-auto`:** run in the Architect's pane to let the two sessions iterate autonomously — relay → nudge → wait → review → repeat — until the Executor reports `## Status: DONE`, an agent needs user input, a pane becomes unavailable, or you stop it. Wait timeouts are status-check intervals, not task deadlines: the Architect keeps waiting idly while the Executor is working. The relay files remain the only data channel, so every hop stays on disk and auditable.
+- **`/pingpong-auto-stop`:** run from **any** pane to halt the loop at its next checkpoint (it drops a STOP sentinel the Architect checks before every hop). For an immediate abort, press Esc/Ctrl+C in the Architect's pane.
 
 Without Herdr, none of this exists — the kit works exactly as described above, with you carrying every hop.
 
@@ -126,7 +126,7 @@ but never touches Herdr itself.
 | bash | PowerShell | Meaning |
 | --- | --- | --- |
 | `--link` | `-Link` | symlink instead of copy (dev mode: repo edits go live) |
-| `--uninstall` | `-Uninstall` | remove an existing orfi-ae-kit install |
+| `--uninstall` | `-Uninstall` | remove an existing pingpong install |
 | `--help` / `-h` | `-Help` | print usage |
 
 ### Install destinations
@@ -156,7 +156,7 @@ Removes the commands from the Claude/OpenCode commands dirs and the skill dirs f
 
 The relay, orientation, onboarding, and session-state files all live under a single **helper-files root** directory. The commands no longer hard-code a path — instead each resolves the root from a small **per-repo pointer file**, so every repo keeps its own separate state and they never overwrite each other.
 
-**Configure it once per repo** — run `/orfi-ae-kit-set-helper-files-root` (pass the path, or it will prompt you). That writes:
+**Configure it once per repo** — run `/pingpong-set-helper-files-root` (pass the path, or it will prompt you). That writes:
 
 ```
 .orfi-kits/helper-files-root   one line: the absolute path to your helper-files root
@@ -164,7 +164,7 @@ The relay, orientation, onboarding, and session-state files all live under a sin
 
 `.orfi-kits/` is **tracked** (committed) on working branches, so the pointer propagates worktree → epic → child worktrees via the branch checkout. It is stripped from the final tree before the epic's PR merge by `/orfi-kit-cleanup-state`. Any command that needs the root reads the pointer first; if it isn't set yet, the command configures it on the spot, then continues. There is **no fallback** to any previous default path.
 
-**Then bootstrap the kit files** — run `/orfi-ae-kit-init` once per repo. It creates the orientation, onboarding, and session-state files under the root **only if they don't already exist** (it never overwrites; if the repo is already initialized it says so and quits). The orientation files it writes are **generic/agnostic** — all project-specific rules (stack, conventions, ADR location, test commands, security gate, terminology) live in `ONBOARDING.md`, which the orientation files redirect agents to read.
+**Then bootstrap the kit files** — run `/pingpong-init` once per repo. It creates the orientation, onboarding, and session-state files under the root **only if they don't already exist** (it never overwrites; if the repo is already initialized it says so and quits). The orientation files it writes are **generic/agnostic** — all project-specific rules (stack, conventions, ADR location, test commands, security gate, terminology) live in `ONBOARDING.md`, which the orientation files redirect agents to read.
 
 The helper-files root is a general bucket, so the kit keeps its files in a dedicated **`orfi-kits/` subfolder** under the root (the pointer stores the root; the commands append `orfi-kits/`):
 
@@ -184,9 +184,9 @@ The same pointer is shared with **orfi-kit** (which reads `CLAUDE-SESSION-STATE.
 
 ## Model routing
 
-The kit routes work by model tier: **high-model thinking work** and **low-model execution work**. The routing config lives in `<root>\orfi-kits\MODEL-ROUTING.md`, created by `/orfi-ae-kit-init` (with placeholders) or by `/orfi-ae-kit-model-routing` if missing. It has four sections — **Claude Code**, **OpenCode**, **Copilot CLI**, **Codex CLI** — each holding a `high_model` (the thinking tier, e.g. Opus) and a `low_model` (the execution tier, e.g. Sonnet).
+The kit routes work by model tier: **high-model thinking work** and **low-model execution work**. The routing config lives in `<root>\orfi-kits\MODEL-ROUTING.md`, created by `/pingpong-init` (with placeholders) or by `/pingpong-model-routing` if missing. It has four sections — **Claude Code**, **OpenCode**, **Copilot CLI**, **Codex CLI** — each holding a `high_model` (the thinking tier, e.g. Opus) and a `low_model` (the execution tier, e.g. Sonnet).
 
-Run `/orfi-ae-kit-model-routing` after orienting a session. With no arguments it reports this runtime's high/low models and installs the routing rules:
+Run `/pingpong-model-routing` after orienting a session. With no arguments it reports this runtime's high/low models and installs the routing rules:
 
 - **High model — the session itself runs on it:** design, ADR/PRD review, planning, orchestration (both roles), reading relay/tasks/designs, verification, driving the Executor (pingpong), and branch/master sync + merge-conflict resolution.
 - **Low model — delegate to spawned agents:** execution/implementation, git operations (except sync and merge conflicts), Jira/Atlassian operations, persisting state/onboarding files, and any mechanical work.
@@ -194,9 +194,9 @@ Run `/orfi-ae-kit-model-routing` after orienting a session. With no arguments it
 Update the config with `high <model>` / `low <model>` (or just tell the session in a prompt), or edit the file manually. For example:
 
 ```
-/orfi-ae-kit-model-routing            # report the current high/low models for this runtime
-/orfi-ae-kit-model-routing high claude-opus-4-6    # set the high (thinking) model
-/orfi-ae-kit-model-routing low claude-sonnet-4-6   # set the low (execution) model
+/pingpong-model-routing            # report the current high/low models for this runtime
+/pingpong-model-routing high claude-opus-4-6    # set the high (thinking) model
+/pingpong-model-routing low claude-sonnet-4-6   # set the low (execution) model
 ```
 
 Changing the session model with `/model` overrides the high model **for the current pane only** — it never writes back to the config.

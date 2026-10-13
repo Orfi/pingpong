@@ -4,7 +4,7 @@
 
 **Goal:** Add an explicit, user-controlled autonomous architect↔executor loop ("ping-pong") over the existing relay files, using Herdr only as a wake-up/status transport, plus installer gating so the two new skills are installed only when the user opts into Herdr support.
 
-**Architecture:** Two new markdown skill/command artifacts (`orfi-ae-kit-pingpong`, `orfi-ae-kit-pingpong-stop`) authored in both source trees (`claude/commands/*.md` for Claude Code + OpenCode; `copilot/skills/*/SKILL.md` for Copilot CLI). The existing 8 relay artifacts are untouched. Both installers gain a "Herdr support?" prompt that conditionally installs the new artifacts and offers to install/update Herdr and its agent skill.
+**Architecture:** Two new markdown skill/command artifacts (`pingpong-auto`, `pingpong-auto-stop`) authored in both source trees (`claude/commands/*.md` for Claude Code + OpenCode; `copilot/skills/*/SKILL.md` for Copilot CLI). The existing 8 relay artifacts are untouched. Both installers gain a "Herdr support?" prompt that conditionally installs the new artifacts and offers to install/update Herdr and its agent skill.
 
 **Tech Stack:** Markdown skill files with YAML frontmatter; Bash (`install.sh`); PowerShell (`install.ps1`). No runtime scripts — the kit stays skills-only.
 
@@ -18,27 +18,27 @@
 - Commit messages: `{type}: {VERB}: description` (no ticket). NO Co-authored-by trailer or any agent attribution.
 - Windows install command: `powershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 | iex"`; Linux/macOS: `curl -fsSL https://herdr.dev/install.sh | sh`; herdr agent skill: `npx skills add ogulcancelik/herdr --skill herdr -g`.
 - `--uninstall` always removes the two ping-pong artifacts if present, but never uninstalls Herdr or the herdr agent skill.
-- Repo root: `/mnt/BA707A64707A2773/code/orfi-ae-kit`, branch `main`, commit directly to it.
+- Repo root: `/mnt/BA707A64707A2773/code/pingpong`, branch `main`, commit directly to it.
 
 ---
 
-### Task 1: `orfi-ae-kit-pingpong` artifact (both variants)
+### Task 1: `pingpong-auto` artifact (both variants)
 
 **Files:**
-- Create: `claude/commands/orfi-ae-kit-pingpong.md`
-- Create: `copilot/skills/orfi-ae-kit-pingpong/SKILL.md`
+- Create: `claude/commands/pingpong-auto.md`
+- Create: `copilot/skills/pingpong-auto/SKILL.md`
 
 **Interfaces:**
-- Consumes: existing skills `/orfi-ae-kit-relay-to-executor`, `/orfi-ae-kit-relay-read-task`, `/orfi-ae-kit-relay-read-result`; herdr CLI; `<kit-root>` resolution convention.
-- Produces: the skill name `orfi-ae-kit-pingpong` (referenced by Task 3/4 installer arrays and Task 5 README); the STOP sentinel path `<kit-root>/relay/STOP` (consumed by Task 2).
+- Consumes: existing skills `/pingpong-relay-to-executor`, `/pingpong-relay-read-task`, `/pingpong-relay-read-result`; herdr CLI; `<kit-root>` resolution convention.
+- Produces: the skill name `pingpong-auto` (referenced by Task 3/4 installer arrays and Task 5 README); the STOP sentinel path `<kit-root>/relay/STOP` (consumed by Task 2).
 
-- [ ] **Step 1: Write `claude/commands/orfi-ae-kit-pingpong.md`**
+- [ ] **Step 1: Write `claude/commands/pingpong-auto.md`**
 
 Create the file with exactly this content:
 
 ````markdown
 ---
-name: orfi-ae-kit-pingpong
+name: pingpong-auto
 description: Architect role — run the autonomous architect↔executor ping-pong loop over the relay files via Herdr until DONE, blocked, timeout, or stopped.
 ---
 
@@ -46,9 +46,9 @@ You are acting as the **Architect** and you are about to drive the autonomous **
 
 ## Gate
 
-Require Herdr: run `test "${HERDR_ENV:-}" = 1`. If it fails, say you are not running inside Herdr and that the manual relay flow (`/orfi-ae-kit-relay-to-executor` → user nudges → `/orfi-ae-kit-relay-read-result`) still works, then STOP.
+Require Herdr: run `test "${HERDR_ENV:-}" = 1`. If it fails, say you are not running inside Herdr and that the manual relay flow (`/pingpong-relay-to-executor` → user nudges → `/pingpong-relay-read-result`) still works, then STOP.
 
-Resolve the **helper-files root**: read `.orfi-kits/helper-files-root` in the current repo. If missing, STOP and run `/orfi-ae-kit-set-helper-files-root` — ask the user for the absolute path (never guess; no default). Define `<kit-root>` = `<helper-files-root>/orfi-kits`.
+Resolve the **helper-files root**: read `.orfi-kits/helper-files-root` in the current repo. If missing, STOP and run `/pingpong-set-helper-files-root` — ask the user for the absolute path (never guess; no default). Define `<kit-root>` = `<helper-files-root>/orfi-kits`.
 
 ## Discover the executor pane
 
@@ -56,18 +56,18 @@ Run `herdr pane list --workspace "$HERDR_WORKSPACE_ID"` and select panes whose `
 
 ## Initial task
 
-Take the task from the arguments below or, if none, from the current conversation context — same convention as `/orfi-ae-kit-relay-to-executor`. If neither yields a clear task, ask the user before starting.
+Take the task from the arguments below or, if none, from the current conversation context — same convention as `/pingpong-relay-to-executor`. If neither yields a clear task, ask the user before starting.
 
 ## The loop
 
 Each round:
 
 1. **STOP check.** If `<kit-root>/relay/STOP` exists: delete it, report "ping-pong stopped by user at round N" plus what was in flight, and STOP.
-2. **Relay.** Write the task with the exact procedure of `/orfi-ae-kit-relay-to-executor` (overwrite `<kit-root>/relay/relay-to-executor.md`, update the session-state RELAY FILE STATE note).
+2. **Relay.** Write the task with the exact procedure of `/pingpong-relay-to-executor` (overwrite `<kit-root>/relay/relay-to-executor.md`, update the session-state RELAY FILE STATE note).
 3. **Pre-flight.** `herdr pane get <executor-pane>` — the executor must be `idle` or `done`. If `working`/`blocked`, wait with `herdr wait agent-status <executor-pane> --status idle --timeout 120000`; on timeout, read the pane, report, and STOP.
-4. **Nudge.** Record the pane's current `revision`, then `herdr pane run <executor-pane> "/orfi-ae-kit-relay-read-task"`.
+4. **Nudge.** Record the pane's current `revision`, then `herdr pane run <executor-pane> "/pingpong-relay-read-task"`.
 5. **Wait.** `herdr wait agent-status <executor-pane> --status done --timeout 600000`; if that times out, check `herdr pane get <executor-pane>` — treat `idle` **with a changed `revision`** as completed (fast replies race past `working`; the revision change is your evidence the executor actually acted). If still unchanged or `blocked`, read the pane with `herdr pane read <executor-pane> --source recent-unwrapped --lines 60`, report, and STOP. Do NOT chain a `working` wait before the `idle`/`done` wait.
-6. **Read the result.** Follow `/orfi-ae-kit-relay-read-result` in this pane: read `<kit-root>/relay/relay-to-architect.md` in full and review it critically.
+6. **Read the result.** Follow `/pingpong-relay-read-result` in this pane: read `<kit-root>/relay/relay-to-architect.md` in full and review it critically.
 7. **Log.** Append one line to the RELAY FILE STATE section of your own session-state file — `CLAUDE-SESSION-STATE.md` if you are Claude Code, `COPILOT-SESSION-STATE.md` if you are Copilot CLI: round number, direction, one-sentence summary.
 8. **Decide.** Stop if the result contains `## Status: DONE`, or if you judge no follow-up is needed — report the outcome to the user. Otherwise formulate the follow-up task and go to 1.
 
@@ -84,17 +84,17 @@ Arguments (the initial task, optional): $ARGUMENTS
 
 - [ ] **Step 2: Create the Copilot variant**
 
-Create `copilot/skills/orfi-ae-kit-pingpong/SKILL.md` with content identical to Step 1's file except: remove the trailing `Arguments (the initial task, optional): $ARGUMENTS` line and change the "Initial task" sentence to read "Take the task from the user's invocation or the current conversation context" (Copilot skills receive no `$ARGUMENTS`).
+Create `copilot/skills/pingpong-auto/SKILL.md` with content identical to Step 1's file except: remove the trailing `Arguments (the initial task, optional): $ARGUMENTS` line and change the "Initial task" sentence to read "Take the task from the user's invocation or the current conversation context" (Copilot skills receive no `$ARGUMENTS`).
 
 - [ ] **Step 3: Validate frontmatter of both files**
 
 Run:
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit && python3 - <<'EOF'
+cd /mnt/BA707A64707A2773/code/pingpong && python3 - <<'EOF'
 import yaml
-for f in ['claude/commands/orfi-ae-kit-pingpong.md','copilot/skills/orfi-ae-kit-pingpong/SKILL.md']:
+for f in ['claude/commands/pingpong-auto.md','copilot/skills/pingpong-auto/SKILL.md']:
     d = yaml.safe_load(open(f).read().split('---')[1])
-    assert d['name'] == 'orfi-ae-kit-pingpong', f
+    assert d['name'] == 'pingpong-auto', f
     print('OK', f)
 EOF
 ```
@@ -103,36 +103,36 @@ Expected: two `OK` lines. A YAML error means an unquoted `: ` slipped into the d
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
-git add claude/commands/orfi-ae-kit-pingpong.md copilot/skills/orfi-ae-kit-pingpong
-git commit -m "feat: ADDED: orfi-ae-kit-pingpong skill (autonomous relay loop via Herdr)"
+cd /mnt/BA707A64707A2773/code/pingpong
+git add claude/commands/pingpong-auto.md copilot/skills/pingpong-auto
+git commit -m "feat: ADDED: pingpong-auto skill (autonomous relay loop via Herdr)"
 ```
 
 ---
 
-### Task 2: `orfi-ae-kit-pingpong-stop` artifact (both variants)
+### Task 2: `pingpong-auto-stop` artifact (both variants)
 
 **Files:**
-- Create: `claude/commands/orfi-ae-kit-pingpong-stop.md`
-- Create: `copilot/skills/orfi-ae-kit-pingpong-stop/SKILL.md`
+- Create: `claude/commands/pingpong-auto-stop.md`
+- Create: `copilot/skills/pingpong-auto-stop/SKILL.md`
 
 **Interfaces:**
 - Consumes: STOP sentinel path `<kit-root>/relay/STOP` (defined in Task 1); `<kit-root>` resolution convention; both session-state file names.
-- Produces: the skill name `orfi-ae-kit-pingpong-stop` (referenced by Task 3/4 installer arrays and Task 5 README).
+- Produces: the skill name `pingpong-auto-stop` (referenced by Task 3/4 installer arrays and Task 5 README).
 
-- [ ] **Step 1: Write `claude/commands/orfi-ae-kit-pingpong-stop.md`**
+- [ ] **Step 1: Write `claude/commands/pingpong-auto-stop.md`**
 
 Create the file with exactly this content:
 
 ````markdown
 ---
-name: orfi-ae-kit-pingpong-stop
+name: pingpong-auto-stop
 description: Any role — stop a running architect↔executor ping-pong loop by creating the STOP sentinel, then report loop state.
 ---
 
 You may be any agent in any pane — architect, executor, or a third session. Your job is to stop a running ping-pong loop.
 
-Resolve the **helper-files root**: read `.orfi-kits/helper-files-root` in the current repo. If missing, STOP and run `/orfi-ae-kit-set-helper-files-root` — ask the user for the absolute path (never guess; no default). Define `<kit-root>` = `<helper-files-root>/orfi-kits`.
+Resolve the **helper-files root**: read `.orfi-kits/helper-files-root` in the current repo. If missing, STOP and run `/pingpong-set-helper-files-root` — ask the user for the absolute path (never guess; no default). Define `<kit-root>` = `<helper-files-root>/orfi-kits`.
 
 1. Create the empty sentinel file `<kit-root>/relay/STOP` (create the `relay` directory if needed). If it already exists, say so — a stop is already pending.
 2. Read the RELAY FILE STATE section of `<kit-root>/CLAUDE-SESSION-STATE.md` and `<kit-root>/COPILOT-SESSION-STATE.md` (whichever exist) and report to the user: which round the loop appears to be on and what task is in flight, so they know what stopping interrupts.
@@ -143,17 +143,17 @@ Do not touch the relay files themselves and do not delete the sentinel — the a
 
 - [ ] **Step 2: Create the Copilot variant**
 
-Create `copilot/skills/orfi-ae-kit-pingpong-stop/SKILL.md` with content identical to Step 1's file (it has no `$ARGUMENTS` line, so no change needed).
+Create `copilot/skills/pingpong-auto-stop/SKILL.md` with content identical to Step 1's file (it has no `$ARGUMENTS` line, so no change needed).
 
 - [ ] **Step 3: Validate frontmatter of both files**
 
 Run:
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit && python3 - <<'EOF'
+cd /mnt/BA707A64707A2773/code/pingpong && python3 - <<'EOF'
 import yaml
-for f in ['claude/commands/orfi-ae-kit-pingpong-stop.md','copilot/skills/orfi-ae-kit-pingpong-stop/SKILL.md']:
+for f in ['claude/commands/pingpong-auto-stop.md','copilot/skills/pingpong-auto-stop/SKILL.md']:
     d = yaml.safe_load(open(f).read().split('---')[1])
-    assert d['name'] == 'orfi-ae-kit-pingpong-stop', f
+    assert d['name'] == 'pingpong-auto-stop', f
     print('OK', f)
 EOF
 ```
@@ -162,9 +162,9 @@ Expected: two `OK` lines.
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
-git add claude/commands/orfi-ae-kit-pingpong-stop.md copilot/skills/orfi-ae-kit-pingpong-stop
-git commit -m "feat: ADDED: orfi-ae-kit-pingpong-stop skill (halt the loop from any pane)"
+cd /mnt/BA707A64707A2773/code/pingpong
+git add claude/commands/pingpong-auto-stop.md copilot/skills/pingpong-auto-stop
+git commit -m "feat: ADDED: pingpong-auto-stop skill (halt the loop from any pane)"
 ```
 
 ---
@@ -175,7 +175,7 @@ git commit -m "feat: ADDED: orfi-ae-kit-pingpong-stop skill (halt the loop from 
 - Modify: `install.sh` (arrays at lines ~38-39; add prompt after runtime selection ~line 149; uninstall block ~lines 153-161; install blocks ~lines 179-192)
 
 **Interfaces:**
-- Consumes: artifact names `orfi-ae-kit-pingpong`, `orfi-ae-kit-pingpong-stop` from Tasks 1-2.
+- Consumes: artifact names `pingpong-auto`, `pingpong-auto-stop` from Tasks 1-2.
 - Produces: interactive behavior "Herdr support? [y/N]" that Task 4 mirrors in PowerShell.
 
 - [ ] **Step 1: Split the artifact arrays**
@@ -184,10 +184,10 @@ In `install.sh`, replace the two array definitions:
 
 ```bash
 # Base artifacts — always installed. Same 8 names for command .md files and Copilot skill dirs.
-COMMANDS=(orfi-ae-kit-set-helper-files-root orfi-ae-kit-init orfi-ae-kit-orient-architect orfi-ae-kit-orient-executor orfi-ae-kit-relay-to-executor orfi-ae-kit-relay-read-task orfi-ae-kit-relay-to-architect orfi-ae-kit-relay-read-result)
+COMMANDS=(pingpong-set-helper-files-root pingpong-init pingpong-orient-architect pingpong-orient-executor pingpong-relay-to-executor pingpong-relay-read-task pingpong-relay-to-architect pingpong-relay-read-result)
 SKILLS=("${COMMANDS[@]}")
 # Herdr-gated artifacts — installed only with Herdr support; ALWAYS removed on uninstall.
-PINGPONG=(orfi-ae-kit-pingpong orfi-ae-kit-pingpong-stop)
+PINGPONG=(pingpong-auto pingpong-auto-stop)
 ```
 
 - [ ] **Step 2: Make uninstall always remove ping-pong artifacts**
@@ -246,16 +246,16 @@ fi
 
 - [ ] **Step 5: Syntax-check**
 
-Run: `bash -n /mnt/BA707A64707A2773/code/orfi-ae-kit/install.sh && echo SYNTAX-OK`
+Run: `bash -n /mnt/BA707A64707A2773/code/pingpong/install.sh && echo SYNTAX-OK`
 Expected: `SYNTAX-OK`
 
 - [ ] **Step 6: Functional test of the "no" path with an isolated HOME**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
+cd /mnt/BA707A64707A2773/code/pingpong
 TESTHOME=$(mktemp -d)
 printf '1 2 3\nn\n' | HOME="$TESTHOME" XDG_CONFIG_HOME="$TESTHOME/.config" bash install.sh
-ls "$TESTHOME/.claude/commands" | grep -c 'orfi-ae-kit-' # expect 8
+ls "$TESTHOME/.claude/commands" | grep -c 'pingpong-' # expect 8
 ls "$TESTHOME/.claude/commands" | grep pingpong && echo "FAIL: pingpong installed" || echo "OK: no pingpong"
 rm -rf "$TESTHOME"
 ```
@@ -264,12 +264,12 @@ Expected: 8 base commands installed, `OK: no pingpong`.
 - [ ] **Step 7: Functional test of uninstall removing ping-pong leftovers**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
+cd /mnt/BA707A64707A2773/code/pingpong
 TESTHOME=$(mktemp -d)
-mkdir -p "$TESTHOME/.claude/commands" "$TESTHOME/.copilot/skills/orfi-ae-kit-pingpong"
-touch "$TESTHOME/.claude/commands/orfi-ae-kit-pingpong.md"
+mkdir -p "$TESTHOME/.claude/commands" "$TESTHOME/.copilot/skills/pingpong-auto"
+touch "$TESTHOME/.claude/commands/pingpong-auto.md"
 printf '1 3\n' | HOME="$TESTHOME" bash install.sh --uninstall
-[ ! -e "$TESTHOME/.claude/commands/orfi-ae-kit-pingpong.md" ] && [ ! -d "$TESTHOME/.copilot/skills/orfi-ae-kit-pingpong" ] && echo "OK: pingpong removed" || echo "FAIL"
+[ ! -e "$TESTHOME/.claude/commands/pingpong-auto.md" ] && [ ! -d "$TESTHOME/.copilot/skills/pingpong-auto" ] && echo "OK: pingpong removed" || echo "FAIL"
 rm -rf "$TESTHOME"
 ```
 Expected: `OK: pingpong removed`.
@@ -277,7 +277,7 @@ Expected: `OK: pingpong removed`.
 - [ ] **Step 8: Commit**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
+cd /mnt/BA707A64707A2773/code/pingpong
 git add install.sh
 git commit -m "feat: ADDED: Herdr-support gating to install.sh (conditional ping-pong artifacts)"
 ```
@@ -299,10 +299,10 @@ Replace the `$Commands`/`$Skills` definitions:
 
 ```powershell
 # Base artifacts — always installed.
-$Commands = @('orfi-ae-kit-set-helper-files-root','orfi-ae-kit-init','orfi-ae-kit-orient-architect','orfi-ae-kit-orient-executor','orfi-ae-kit-relay-to-executor','orfi-ae-kit-relay-read-task','orfi-ae-kit-relay-to-architect','orfi-ae-kit-relay-read-result')
+$Commands = @('pingpong-set-helper-files-root','pingpong-init','pingpong-orient-architect','pingpong-orient-executor','pingpong-relay-to-executor','pingpong-relay-read-task','pingpong-relay-to-architect','pingpong-relay-read-result')
 $Skills   = $Commands
 # Herdr-gated artifacts — installed only with Herdr support; ALWAYS removed on uninstall.
-$PingPong = @('orfi-ae-kit-pingpong','orfi-ae-kit-pingpong-stop')
+$PingPong = @('pingpong-auto','pingpong-auto-stop')
 ```
 
 - [ ] **Step 2: Make removal functions cover ping-pong artifacts**
@@ -353,14 +353,14 @@ Case-insensitivity note: PowerShell `-match` is case-insensitive by default, so 
 
 Run (pwsh if available, else the parser via python is not possible — use pwsh):
 ```bash
-pwsh -NoProfile -Command "[System.Management.Automation.Language.Parser]::ParseFile('/mnt/BA707A64707A2773/code/orfi-ae-kit/install.ps1', [ref]\$null, [ref]\$err) | Out-Null; if (\$err.Count) { \$err; exit 1 } else { 'SYNTAX-OK' }"
+pwsh -NoProfile -Command "[System.Management.Automation.Language.Parser]::ParseFile('/mnt/BA707A64707A2773/code/pingpong/install.ps1', [ref]\$null, [ref]\$err) | Out-Null; if (\$err.Count) { \$err; exit 1 } else { 'SYNTAX-OK' }"
 ```
 Expected: `SYNTAX-OK`. If `pwsh` is not installed on this machine, state that the syntax check was skipped and rely on careful review — do NOT install PowerShell just for this.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
+cd /mnt/BA707A64707A2773/code/pingpong
 git add install.ps1
 git commit -m "feat: ADDED: Herdr-support gating to install.ps1 (conditional ping-pong artifacts)"
 ```
@@ -386,8 +386,8 @@ In the spec, the "What is added" intro says skills live in `claude/skills/ and c
 Add two rows to the command table after the `relay-read-result` row:
 
 ```markdown
-| `/orfi-ae-kit-pingpong` | Architect: autonomous relay loop via Herdr — relay, nudge, wait, read, repeat until DONE. *(Installed only with Herdr support.)* |
-| `/orfi-ae-kit-pingpong-stop` | Any pane: stop a running ping-pong loop at its next checkpoint. *(Installed only with Herdr support.)* |
+| `/pingpong-auto` | Architect: autonomous relay loop via Herdr — relay, nudge, wait, read, repeat until DONE. *(Installed only with Herdr support.)* |
+| `/pingpong-auto-stop` | Any pane: stop a running ping-pong loop at its next checkpoint. *(Installed only with Herdr support.)* |
 ```
 
 - [ ] **Step 3: Document the installer prompt**
@@ -407,7 +407,7 @@ but never touches Herdr itself.
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /mnt/BA707A64707A2773/code/orfi-ae-kit
+cd /mnt/BA707A64707A2773/code/pingpong
 git add README.md docs/superpowers/specs/2026-07-18-herdr-pingpong-design.md
 git commit -m "docs: UPDATED: README and spec for Herdr ping-pong skills"
 ```
@@ -419,4 +419,4 @@ git commit -m "docs: UPDATED: README and spec for Herdr ping-pong skills"
 - [ ] All four new artifact files parse (Tasks 1-2 Step 3 checks).
 - [ ] `bash -n install.sh` passes; isolated-HOME tests show: no-herdr install → 8 artifacts, no pingpong; uninstall removes pingpong leftovers.
 - [ ] `git log --oneline` shows 5 commits, none with a Co-authored-by trailer: `git log -5 --format=%B | grep -i co-authored` returns nothing.
-- [ ] Optional live test (user-driven): run `./install.sh`, answer `y` to Herdr, confirm the two skills land in `~/.claude/commands` and `~/.copilot/skills`, then invoke `/orfi-ae-kit-pingpong` in the architect pane on a trivial task.
+- [ ] Optional live test (user-driven): run `./install.sh`, answer `y` to Herdr, confirm the two skills land in `~/.claude/commands` and `~/.copilot/skills`, then invoke `/pingpong-auto` in the architect pane on a trivial task.

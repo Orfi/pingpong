@@ -1,8 +1,8 @@
-# Configurable helper-files root (orfi-ae-kit + orfi-kit) + orient-executor
+# Configurable helper-files root (pingpong + orfi-kit) + orient-executor
 
 **Date:** 2026-06-24
 **Status:** Approved (design)
-**Repos:** `C:\code\orfi-ae-kit`, `C:\code\orfi-kit` (both updated this session)
+**Repos:** `C:\code\pingpong`, `C:\code\orfi-kit` (both updated this session)
 
 ## Problem
 
@@ -11,7 +11,7 @@
    be used for a different repo with its own separate state — and cannot be used by anyone
    else — without hand-editing every command file. This is the known limitation already
    flagged in the README and PRD.
-2. An `orfi-ae-kit-orient-executor` command exists in the global install
+2. An `pingpong-orient-executor` command exists in the global install
    (`~/.claude/commands/`) but was never added to this repo, its installer, or its Copilot
    skill set. The Executor seat has an orient command in practice but not in the kit.
 3. The repo command files have drifted behind the global install: `orient-architect`,
@@ -21,7 +21,7 @@
 
 Make the helper-files root **configurable per repo** via a small untracked pointer file
 read by **both kits**, add the missing **orient-executor** command (Claude + Copilot), and
-bring the orfi-ae-kit repo back in sync with the improved global command bodies.
+bring the pingpong repo back in sync with the improved global command bodies.
 
 ## Key decisions
 
@@ -30,11 +30,11 @@ bring the orfi-ae-kit repo back in sync with the improved global command bodies.
   read. Commands stay generic — no machine-specific text baked in.
 - **Per-repo, not global.** Each working repo carries its own pointer so repos never
   overwrite each other's state. A single global path is explicitly rejected.
-- **One shared, kit-neutral pointer.** orfi-kit and orfi-ae-kit read the **same** root
+- **One shared, kit-neutral pointer.** orfi-kit and pingpong read the **same** root
   because they share `CLAUDE-SESSION-STATE.md` (the handoff). Two separate roots would
   split the shared state file and break the handoff.
   - When only orfi-kit is installed, the root is **partially populated** (just
-    `CLAUDE-SESSION-STATE.md`). orfi-ae-kit is a superset consumer of the same root.
+    `CLAUDE-SESSION-STATE.md`). pingpong is a superset consumer of the same root.
 - **Decoupled config commands.** Each kit ships its **own** `set-helper-files-root` command
   with identical behavior writing the same pointer. Either kit can configure the path
   standalone; neither depends on the other's command existing. (orfi-kit is only a *soft*
@@ -70,7 +70,7 @@ bring the orfi-ae-kit repo back in sync with the improved global command bodies.
 | Config folder | `.orfi-kits/` (in the working repo root) |
 | Pointer file | `.orfi-kits/helper-files-root` — single line: absolute path to the helper-files root |
 | Ignore file | `.orfi-kits/.gitignore` containing `*` |
-| Command (orfi-ae-kit) | `orfi-ae-kit-set-helper-files-root` |
+| Command (pingpong) | `pingpong-set-helper-files-root` |
 | Command (orfi-kit) | `orfi-kit-set-helper-files-root` |
 
 ## Layout under the root — the `orfi-kits/` subfolder
@@ -97,7 +97,7 @@ working repo — same idea, different place.)
 **Per-file convention:** each command body defines `<kit-root>` = `<helper-files-root>\orfi-kits`
 **once** at the top (after resolving the pointer), then references `<kit-root>\…` everywhere.
 
-- **orfi-ae-kit reads/writes:** `<kit-root>\relay\relay-to-executor.md`,
+- **pingpong reads/writes:** `<kit-root>\relay\relay-to-executor.md`,
   `<kit-root>\relay\relay-to-architect.md`, `<kit-root>\architect-orientation.md`,
   `<kit-root>\executor-orientation.md`, `<kit-root>\CLAUDE-SESSION-STATE.md`,
   `<kit-root>\ONBOARDING.md`
@@ -121,12 +121,12 @@ The pointer-read rule used by every consuming command:
 - If missing → run the config routine above, then continue (no restart).
 - Resolve the command's files under the returned path. **No fallback** to `C:\repos\helper_files`.
 
-## Scope — orfi-ae-kit (`C:\code\orfi-ae-kit`)
+## Scope — pingpong (`C:\code\pingpong`)
 
-1. **New config command `orfi-ae-kit-set-helper-files-root`** (Claude command + Copilot
+1. **New config command `pingpong-set-helper-files-root`** (Claude command + Copilot
    SKILL.md), implementing the config routine above.
 
-2. **New command `orfi-ae-kit-orient-executor`** (Claude command + Copilot SKILL.md), synced
+2. **New command `pingpong-orient-executor`** (Claude command + Copilot SKILL.md), synced
    from the global copy and adapted to read the pointer.
 
 3. **Make all 6 relay/orient commands read the pointer** (per the pointer-read rule above),
@@ -147,7 +147,7 @@ The pointer-read rule used by every consuming command:
    existing 4 Copilot skills.
 
 6. **Installer (`install.sh` + `install.ps1`, both — maintenance pair).** Add
-   `orfi-ae-kit-orient-executor` and `orfi-ae-kit-set-helper-files-root` to the `COMMANDS`
+   `pingpong-orient-executor` and `pingpong-set-helper-files-root` to the `COMMANDS`
    and `SKILLS` arrays. No other installer behavior changes.
 
 7. **Docs (`README.md`).** Add the 2 new commands to the command-reference table. Replace the
@@ -190,7 +190,7 @@ the configured root:
   project-specific detail the agnostic orientation defers to it: stack, ADR location,
   test/verification commands, security gate, terminology rules.
 
-### `orfi-ae-kit-init`
+### `pingpong-init`
 
 A **superset** of `orfi-kit-init` (it builds on orfi-kit, which is its prerequisite — it does
 not re-implement the state/onboarding placeholder logic independently). In addition to the
@@ -202,7 +202,7 @@ files if absent**:
 ### `orient-*` guard
 
 If the relevant orientation file is missing, `orient-architect` / `orient-executor` stop and
-advise the user to run `/orfi-ae-kit-init` first. They do not silently auto-create — init is
+advise the user to run `/pingpong-init` first. They do not silently auto-create — init is
 the deliberate bootstrap.
 
 ### Agnostic orientation content

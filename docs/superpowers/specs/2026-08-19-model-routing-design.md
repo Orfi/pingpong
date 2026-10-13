@@ -1,4 +1,4 @@
-# Model Routing for orfi-ae-kit — Design
+# Model Routing for pingpong — Design
 
 Date: 2026-08-19
 Status: Approved
@@ -31,8 +31,8 @@ Lives in `<helper-files-root>\orfi-kits\` — the same directory already used fo
 relays, orientation, state, and onboarding files. It is global to that root
 (shared across repos), not per-repo.
 
-Created by `/orfi-ae-kit-init` (create-if-absent, never overwrite) and by
-`/orfi-ae-kit-model-routing` if missing. Four sections, one per runtime:
+Created by `/pingpong-init` (create-if-absent, never overwrite) and by
+`/pingpong-model-routing` if missing. Four sections, one per runtime:
 
 ```markdown
 # Model Routing
@@ -64,11 +64,11 @@ These are initial placeholders only — the whole point is they are editable.
 
 ### 2. New command per runtime
 
-- Claude Code + OpenCode: `claude/commands/orfi-ae-kit-model-routing.md`
+- Claude Code + OpenCode: `claude/commands/pingpong-model-routing.md`
   (both runtimes share the command source, per the kit's existing layout).
-- Copilot CLI: `copilot/skills/orfi-ae-kit-model-routing/SKILL.md` (adapted
+- Copilot CLI: `copilot/skills/pingpong-model-routing/SKILL.md` (adapted
   copy, per existing parity).
-- Codex CLI: `codex/skills/orfi-ae-kit-model-routing/SKILL.md` (adapted copy,
+- Codex CLI: `codex/skills/pingpong-model-routing/SKILL.md` (adapted copy,
   per existing parity).
 
 Three modes:
@@ -117,15 +117,15 @@ and stability — but does not duplicate the Executor's verification pass.
 
 ## Files
 
-- Create: `claude/commands/orfi-ae-kit-model-routing.md`
-- Create: `copilot/skills/orfi-ae-kit-model-routing/SKILL.md`
-- Modify: `claude/commands/orfi-ae-kit-init.md` (create `MODEL-ROUTING.md`)
-- Modify: `copilot/skills/orfi-ae-kit-init/SKILL.md` (create `MODEL-ROUTING.md`)
-- Modify: `claude/commands/orfi-ae-kit-orient-architect.md` (verification rule)
-- Modify: `copilot/skills/orfi-ae-kit-orient-architect/SKILL.md` (verification rule)
-- Modify: `claude/commands/orfi-ae-kit-init.md` / Copilot init — Architect
+- Create: `claude/commands/pingpong-model-routing.md`
+- Create: `copilot/skills/pingpong-model-routing/SKILL.md`
+- Modify: `claude/commands/pingpong-init.md` (create `MODEL-ROUTING.md`)
+- Modify: `copilot/skills/pingpong-init/SKILL.md` (create `MODEL-ROUTING.md`)
+- Modify: `claude/commands/pingpong-orient-architect.md` (verification rule)
+- Modify: `copilot/skills/pingpong-orient-architect/SKILL.md` (verification rule)
+- Modify: `claude/commands/pingpong-init.md` / Copilot init — Architect
   orientation template "How to review a result" (no re-verification)
-- Modify: `install.sh` + `install.ps1` (add `orfi-ae-kit-model-routing` to the
+- Modify: `install.sh` + `install.ps1` (add `pingpong-model-routing` to the
   command/skill lists)
 - Modify: `README.md` (command table + "Model routing" section)
 

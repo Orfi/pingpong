@@ -1,9 +1,9 @@
 #!/usr/bin/env pwsh
 #
-# orfi-ae-kit installer (PowerShell) — the cross-platform twin of install.sh.
+# pingpong installer (PowerShell) — the cross-platform twin of install.sh.
 # Runs on Windows PowerShell 5+, and pwsh on Windows / macOS / Linux.
 #
-# orfi-ae-kit is skills/commands-only (no scripts at runtime). This script is
+# pingpong is skills/commands-only (no scripts at runtime). This script is
 # install-time plumbing only: it copies (or symlinks) the Architect/Executor
 # relay artifacts into the right directories for Claude Code, OpenCode, GitHub
 # Copilot CLI, and/or OpenAI Codex CLI.
@@ -11,7 +11,7 @@
 # Usage:
 #   ./install.ps1                 interactive: asks which runtime(s) to install for
 #   ./install.ps1 -Link           symlink instead of copy (dev: repo edits go live)
-#   ./install.ps1 -Uninstall      remove an existing orfi-ae-kit install
+#   ./install.ps1 -Uninstall      remove an existing pingpong install
 #   ./install.ps1 -Help           show this help
 #
 # DIFFERENCE FROM trackbed: here the Claude/OpenCode artifacts are COMMANDS
@@ -52,10 +52,10 @@ $CodexHome     = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $Home
 $CodexSkills   = Join-Path $CodexHome 'skills'              # Codex's own home — no command file
 
 # Base artifacts — always installed.
-$Commands = @('orfi-ae-kit-set-helper-files-root','orfi-ae-kit-init','orfi-ae-kit-orient-architect','orfi-ae-kit-orient-executor','orfi-ae-kit-relay-to-executor','orfi-ae-kit-relay-read-task','orfi-ae-kit-relay-to-architect','orfi-ae-kit-relay-read-result','orfi-ae-kit-model-routing')
+$Commands = @('pingpong-set-helper-files-root','pingpong-init','pingpong-orient-architect','pingpong-orient-executor','pingpong-relay-to-executor','pingpong-relay-read-task','pingpong-relay-to-architect','pingpong-relay-read-result','pingpong-model-routing')
 $Skills   = $Commands
 # Herdr-gated artifacts — installed only with Herdr support; ALWAYS removed on uninstall.
-$PingPong = @('orfi-ae-kit-pingpong','orfi-ae-kit-pingpong-stop')
+$PingPong = @('pingpong-auto','pingpong-auto-stop')
 
 # --- helpers -----------------------------------------------------------------
 
@@ -116,13 +116,13 @@ function Test-OrfiKitPresent {
 # --- arg parsing -------------------------------------------------------------
 
 if ($Help) { Show-Usage }
-if (-not (Test-Path $CommandsSrc)) { Die "commands not found at $CommandsSrc - run this from the orfi-ae-kit repo" }
+if (-not (Test-Path $CommandsSrc)) { Die "commands not found at $CommandsSrc - run this from the pingpong repo" }
 
 # --- runtime selection -------------------------------------------------------
 
 $WantCC = $false; $WantOC = $false; $WantCP = $false; $WantCX = $false
 
-Say 'orfi-ae-kit installer'
+Say 'pingpong installer'
 Say 'Install for which runtime(s)?'
 Say '  1) Claude Code'
 Say '  2) OpenCode'
@@ -180,7 +180,7 @@ if ($WantHerdr) {
 
 if ($Uninstall) {
     Say ''
-    Say 'Uninstalling orfi-ae-kit...'
+    Say 'Uninstalling pingpong...'
     if ($WantCC) { Remove-CommandsFrom $ClaudeCmds }
     if ($WantOC) { Remove-CommandsFrom $OpencodeCmds }
     if ($WantCP) { Remove-SkillsFrom $CopilotSkills }
@@ -193,7 +193,7 @@ if ($Uninstall) {
 
 if (-not (Test-OrfiKitPresent)) {
     Warn 'orfi-kit does not appear to be installed.'
-    Say  'orfi-ae-kit is the optional companion to orfi-kit and works best with it.'
+    Say  'pingpong is the optional companion to orfi-kit and works best with it.'
     Say  'Recommended: install orfi-kit first - see the orfi-kit repo.'
     Say  'Continuing anyway...'
 }
@@ -226,4 +226,4 @@ if ($WantCX) {
 }
 
 Say ''
-Say 'Done. Orient your Architect session with /orfi-ae-kit-orient-architect in Claude Code / OpenCode / Copilot CLI, or select the orfi-ae-kit-orient-architect skill in Codex CLI.'
+Say 'Done. Orient your Architect session with /pingpong-orient-architect in Claude Code / OpenCode / Copilot CLI, or select the pingpong-orient-architect skill in Codex CLI.'

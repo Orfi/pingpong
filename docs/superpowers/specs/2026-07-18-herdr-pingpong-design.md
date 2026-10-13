@@ -1,4 +1,4 @@
-# Herdr Ping-Pong for orfi-ae-kit — Design
+# Herdr Ping-Pong for pingpong — Design
 
 Date: 2026-07-18
 Status: Approved (design), pending implementation
@@ -28,9 +28,9 @@ up the relay files, the user's control, or independence from Herdr.
 
 Two new skills (in both `claude/commands/` (Claude Code + OpenCode) and `copilot/skills/` (Copilot CLI), per the kit's source layout). A manual one-hop "nudge" needs **no** skill — the user
 just tells the architect in plain language, e.g. *"run
-`/orfi-ae-kit-relay-read-task` in the executor's pane via herdr"*.
+`/pingpong-relay-read-task` in the executor's pane via herdr"*.
 
-### 1. `orfi-ae-kit-pingpong`
+### 1. `pingpong-auto`
 
 Invoked by the user **in the architect's pane**. Runs the autonomous loop:
 
@@ -45,14 +45,14 @@ Invoked by the user **in the architect's pane**. Runs the autonomous loop:
    yields a clear task, ask the user before starting the loop.
 4. **Loop**, each round:
    a. Check for the STOP sentinel (see below) — halt if present.
-   b. Write the task via the existing `/orfi-ae-kit-relay-to-executor`.
+   b. Write the task via the existing `/pingpong-relay-to-executor`.
    c. Pre-flight: executor pane must be `idle`. If busy, wait; on timeout,
       report and halt.
-   d. Nudge: `herdr pane run <executor-pane> "/orfi-ae-kit-relay-read-task"`.
+   d. Nudge: `herdr pane run <executor-pane> "/pingpong-relay-read-task"`.
    e. Wait for completion via Herdr. Do **not** chain a `working` wait before
       an `idle` wait (fast replies race past `working`); wait on `idle`/`done`
       and use the pane's `revision` field as evidence the executor acted.
-   f. Read the result via the existing `/orfi-ae-kit-relay-read-result` in the
+   f. Read the result via the existing `/pingpong-relay-read-result` in the
       architect's own pane. Review critically.
    g. Log one line per hop to the RELAY FILE STATE section of the architect's
       own session-state file — `CLAUDE-SESSION-STATE.md` when the architect is
@@ -74,7 +74,7 @@ Invoked by the user **in the architect's pane**. Runs the autonomous loop:
    dead loop stopped; re-invoking `pingpong` resumes from there.
 7. **No silent retries.** Anything unexpected → halt and report.
 
-### 2. `orfi-ae-kit-pingpong-stop`
+### 2. `pingpong-auto-stop`
 
 Invoked by the user in **any** kit-aware pane (architect, executor, or a third
 agent):
@@ -93,7 +93,7 @@ immediate abort, as with any agent.
 
 | Method | Where | Effect |
 |---|---|---|
-| `/orfi-ae-kit-pingpong-stop` | any pane | halt at next checkpoint, with status report |
+| `/pingpong-auto-stop` | any pane | halt at next checkpoint, with status report |
 | Esc / Ctrl+C | architect's pane | immediate abort |
 | Esc / Ctrl+C | executor's pane | current work stops; architect's wait sees it, reports, halts |
 
@@ -122,7 +122,7 @@ interactive step:
      `npx skills add ogulcancelik/herdr --skill herdr -g`
      (requires Node/npx; if missing, warn and point at the manual fallback,
      https://github.com/ogulcancelik/herdr/blob/master/SKILL.md).
-   - Add `orfi-ae-kit-pingpong` and `orfi-ae-kit-pingpong-stop` to the
+   - Add `pingpong-auto` and `pingpong-auto-stop` to the
      command/skill sets installed for every selected runtime.
 3. **If no:** skip the two ping-pong skills entirely — the kit installs exactly
    as today, regular (manual relay) mode only.

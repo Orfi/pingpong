@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# orfi-ae-kit installer.
+# pingpong installer.
 #
-# orfi-ae-kit is skills/commands-only (no scripts at runtime). This script is
+# pingpong is skills/commands-only (no scripts at runtime). This script is
 # install-time plumbing only: it copies (or symlinks) the Architect/Executor
 # relay artifacts into the right directories for Claude Code, OpenCode, and/or
 # GitHub Copilot CLI, and/or OpenAI Codex CLI.
@@ -10,7 +10,7 @@
 # Usage:
 #   ./install.sh                 interactive: asks which runtime(s) to install for
 #   ./install.sh --link          symlink instead of copy (dev: repo edits go live)
-#   ./install.sh --uninstall     remove an existing orfi-ae-kit install
+#   ./install.sh --uninstall     remove an existing pingpong install
 #   ./install.sh --help          show this help
 #
 # DIFFERENCE FROM trackbed: here the Claude/OpenCode artifacts are COMMANDS
@@ -40,10 +40,10 @@ COPILOT_SKILLS="$HOME/.copilot/skills"          # Copilot's own home — no comm
 CODEX_SKILLS="${CODEX_HOME:-$HOME/.codex}/skills"   # Codex's own home — no command file
 
 # Base artifacts — always installed. Same 8 names for command .md files and Copilot skill dirs.
-COMMANDS=(orfi-ae-kit-set-helper-files-root orfi-ae-kit-init orfi-ae-kit-orient-architect orfi-ae-kit-orient-executor orfi-ae-kit-relay-to-executor orfi-ae-kit-relay-read-task orfi-ae-kit-relay-to-architect orfi-ae-kit-relay-read-result orfi-ae-kit-model-routing)
+COMMANDS=(pingpong-set-helper-files-root pingpong-init pingpong-orient-architect pingpong-orient-executor pingpong-relay-to-executor pingpong-relay-read-task pingpong-relay-to-architect pingpong-relay-read-result pingpong-model-routing)
 SKILLS=("${COMMANDS[@]}")
 # Herdr-gated artifacts — installed only with Herdr support; ALWAYS removed on uninstall.
-PINGPONG=(orfi-ae-kit-pingpong orfi-ae-kit-pingpong-stop)
+PINGPONG=(pingpong-auto pingpong-auto-stop)
 
 LINK=0
 MODE="install"
@@ -126,7 +126,7 @@ for arg in "$@"; do
   esac
 done
 
-[ -d "$COMMANDS_SRC" ] || err "commands not found at $COMMANDS_SRC — run this from the orfi-ae-kit repo"
+[ -d "$COMMANDS_SRC" ] || err "commands not found at $COMMANDS_SRC — run this from the pingpong repo"
 
 # --- runtime selection -------------------------------------------------------
 
@@ -135,7 +135,7 @@ WANT_OC=0
 WANT_CP=0
 WANT_CX=0
 
-say "orfi-ae-kit installer"
+say "pingpong installer"
 say "Install for which runtime(s)?"
 say "  1) Claude Code"
 say "  2) OpenCode"
@@ -198,7 +198,7 @@ fi
 
 if [ "$MODE" = "uninstall" ]; then
   say ""
-  say "Uninstalling orfi-ae-kit..."
+  say "Uninstalling pingpong..."
   [ "$WANT_CC" -eq 1 ] && remove_commands_from "$CLAUDE_CMDS"
   [ "$WANT_OC" -eq 1 ] && remove_commands_from "$OPENCODE_CMDS"
   [ "$WANT_CP" -eq 1 ] && remove_skills_from "$COPILOT_SKILLS"
@@ -211,7 +211,7 @@ fi
 
 if ! orfi_kit_present; then
   warn "orfi-kit does not appear to be installed."
-  say  "orfi-ae-kit is the optional companion to orfi-kit and works best with it."
+  say  "pingpong is the optional companion to orfi-kit and works best with it."
   say  "Recommended: install orfi-kit first — see the orfi-kit repo."
   say  "Continuing anyway..."
 fi
@@ -244,4 +244,4 @@ if [ "$WANT_CX" -eq 1 ]; then
 fi
 
 say ""
-say "Done. Orient your Architect session with /orfi-ae-kit-orient-architect in Claude Code / OpenCode / Copilot CLI, or select the orfi-ae-kit-orient-architect skill in Codex CLI."
+say "Done. Orient your Architect session with /pingpong-orient-architect in Claude Code / OpenCode / Copilot CLI, or select the pingpong-orient-architect skill in Codex CLI."
